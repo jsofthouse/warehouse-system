@@ -48,7 +48,7 @@ Terakhir disegarkan 6 September 2026 (sore — Kartu Stok & Stok Harian ditambah
 | Master gudang, item, lokasi, alokasi kebutuhan, tarif sewa | Jadi |
 | Barang Masuk (Penerimaan) | Jadi — draft, posting, pembatalan, cetak PDF |
 | Surat Jalan | Jadi — draft, posting, tandai diterima, pembatalan, cetak tiga rangkap |
-| Kartu Stok & Stok Harian | Jadi — ringkasan stok on-hand, riwayat mutasi berpaginasi, snapshot harian terjadwal + hitung ulang manual. Test belum sempat dijalankan di sesi ini (lihat `docs/11-modul-kartu-stok-dan-stok-harian.md` §11) |
+| Kartu Stok & Stok Harian | Jadi — ringkasan stok on-hand, riwayat mutasi berpaginasi, snapshot harian terjadwal + hitung ulang manual. Sempat ada bug (mismatch format tanggal di `updateOrCreate`, ketahuan dari test Jo, sudah di-fix commit `52900cd`) — lihat `docs/11-modul-kartu-stok-dan-stok-harian.md` §11 |
 | Invoice Sewa Gudang | **Belum** — terhalang data berat barang |
 | Laporan (distribusi, biaya sewa) | **Belum** |
 
