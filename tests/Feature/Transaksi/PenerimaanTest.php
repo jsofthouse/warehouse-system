@@ -212,7 +212,7 @@ class PenerimaanTest extends TestCase
         $this->assertSame(Penerimaan::class, $mutasi->referensi_type);
         $this->assertSame($dokumen->id, $mutasi->referensi_id);
 
-        $this->assertDatabaseHas('activity_logs', [
+        $this->assertDatabaseHas('activity_log', [
             'aksi' => 'post',
             'subjek_type' => Penerimaan::class,
             'subjek_id' => $dokumen->id,
@@ -371,7 +371,7 @@ class PenerimaanTest extends TestCase
 
         Event::assertDispatched(PenerimaanDibatalkan::class);
 
-        $this->assertDatabaseHas('activity_logs', [
+        $this->assertDatabaseHas('activity_log', [
             'aksi' => 'cancel',
             'subjek_type' => Penerimaan::class,
             'subjek_id' => $dokumen->id,

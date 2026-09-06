@@ -19,7 +19,7 @@ return new class extends Migration
             $table->foreignId('gudang_id')
                 ->nullable()
                 ->after('role')
-                ->constrained('gudangs')
+                ->constrained('gudang')
                 ->restrictOnDelete();
 
             $table->boolean('is_active')->default(true)->after('gudang_id');

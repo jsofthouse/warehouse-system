@@ -12,10 +12,10 @@ return new class extends Migration
         // Ini sumber kebenaran buat kartu stok DAN snapshot stok_harian, sekaligus
         // dasar rebuild FIFO nanti kalau suatu saat dibutuhkan (lihat "Modul
         // Invoice Sewa Gudang" §3).
-        Schema::create('stok_mutasis', function (Blueprint $table) {
+        Schema::create('stok_mutasi', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('gudang_id')->constrained('gudangs')->restrictOnDelete();
-            $table->foreignId('item_id')->constrained('items')->restrictOnDelete();
+            $table->foreignId('gudang_id')->constrained('gudang')->restrictOnDelete();
+            $table->foreignId('item_id')->constrained('item')->restrictOnDelete();
             $table->date('tanggal');
             $table->enum('tipe', ['IN', 'OUT']);
             $table->unsignedInteger('jumlah');
@@ -34,6 +34,6 @@ return new class extends Migration
 
     public function down(): void
     {
-        Schema::dropIfExists('stok_mutasis');
+        Schema::dropIfExists('stok_mutasi');
     }
 };

@@ -26,7 +26,7 @@ class UserRequest extends FormRequest
             'gudang_id' => [
                 Rule::requiredIf($this->input('role') === UserRole::OperatorGudang->value),
                 'nullable',
-                'exists:gudangs,id',
+                'exists:gudang,id',
             ],
             'is_active' => ['sometimes', 'boolean'],
         ];

@@ -11,7 +11,7 @@ return new class extends Migration
         // item.berat_kg sengaja nullable — data berat dari klien belum tersedia
         // (lihat docs "Modul Invoice Sewa Gudang" §1). Sistem tetap bisa jalan
         // pakai basis volumetrik/m3 sampai data berat masuk.
-        Schema::create('items', function (Blueprint $table) {
+        Schema::create('item', function (Blueprint $table) {
             $table->id();
             $table->string('kode', 30)->unique();
             $table->string('nama');
@@ -28,6 +28,6 @@ return new class extends Migration
 
     public function down(): void
     {
-        Schema::dropIfExists('items');
+        Schema::dropIfExists('item');
     }
 };

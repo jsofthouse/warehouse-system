@@ -76,18 +76,18 @@ final class KetersediaanPengiriman
     private static function sudahTerkirim(int $lokasiId): Collection
     {
         return SuratJalanDetail::query()
-            ->join('surat_jalans', 'surat_jalans.id', '=', 'surat_jalan_details.surat_jalan_id')
-            ->where('surat_jalans.lokasi_id', $lokasiId)
-            ->whereIn('surat_jalans.status', StatusSuratJalan::terkirim())
-            ->groupBy('surat_jalan_details.item_id')
-            ->selectRaw('surat_jalan_details.item_id as item_id, SUM(surat_jalan_details.jumlah_kirim) as total')
+            ->join('surat_jalan', 'surat_jalan.id', '=', 'surat_jalan_detail.surat_jalan_id')
+            ->where('surat_jalan.lokasi_id', $lokasiId)
+            ->whereIn('surat_jalan.status', StatusSuratJalan::terkirim())
+            ->groupBy('surat_jalan_detail.item_id')
+            ->selectRaw('surat_jalan_detail.item_id as item_id, SUM(surat_jalan_detail.jumlah_kirim) as total')
             ->pluck('total', 'item_id')
             ->map(fn ($total) => (int) $total);
     }
 
     /**
      * Stok on-hand = SUM(IN) - SUM(OUT) per item di gudang ini. Dihitung dari
-     * ledger `stok_mutasis`, tidak pernah dari kolom stok yang di-UPDATE
+     * ledger `stok_mutasi`, tidak pernah dari kolom stok yang di-UPDATE
      * (CLAUDE.md §5.1 / "03-aturan-bisnis.md" §3).
      *
      * @return Collection<int, int>

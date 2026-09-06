@@ -8,10 +8,10 @@ return new class extends Migration
 {
     public function up(): void
     {
-        Schema::create('invoices', function (Blueprint $table) {
+        Schema::create('invoice', function (Blueprint $table) {
             $table->id();
             $table->string('nomor_invoice', 40)->nullable()->unique();
-            $table->foreignId('gudang_id')->constrained('gudangs')->restrictOnDelete();
+            $table->foreignId('gudang_id')->constrained('gudang')->restrictOnDelete();
             $table->date('periode_mulai');
             $table->date('periode_selesai');
 
@@ -41,6 +41,6 @@ return new class extends Migration
 
     public function down(): void
     {
-        Schema::dropIfExists('invoices');
+        Schema::dropIfExists('invoice');
     }
 };

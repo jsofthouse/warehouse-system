@@ -8,10 +8,10 @@ return new class extends Migration
 {
     public function up(): void
     {
-        Schema::create('penerimaans', function (Blueprint $table) {
+        Schema::create('penerimaan', function (Blueprint $table) {
             $table->id();
             $table->string('nomor_penerimaan', 40)->nullable()->unique();
-            $table->foreignId('gudang_id')->constrained('gudangs')->restrictOnDelete();
+            $table->foreignId('gudang_id')->constrained('gudang')->restrictOnDelete();
             $table->date('tanggal');
             $table->string('vendor_nama');
             $table->string('nomor_dokumen_vendor')->nullable();
@@ -33,6 +33,6 @@ return new class extends Migration
 
     public function down(): void
     {
-        Schema::dropIfExists('penerimaans');
+        Schema::dropIfExists('penerimaan');
     }
 };

@@ -7,6 +7,11 @@ use Illuminate\Database\Eloquent\Model;
 
 class InvoiceDetail extends Model
 {
+    // Nama tabel tunggal bahasa Indonesia, bukan jamak ala Laravel
+    // (CLAUDE.md §9). Konvensi otomatis Eloquent tidak cocok, jadi
+    // tabelnya dinyatakan eksplisit.
+    protected $table = 'invoice_detail';
+
     protected $fillable = [
         'invoice_id',
         'item_id',

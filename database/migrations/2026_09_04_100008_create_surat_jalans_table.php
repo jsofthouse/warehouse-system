@@ -8,14 +8,14 @@ return new class extends Migration
 {
     public function up(): void
     {
-        Schema::create('surat_jalans', function (Blueprint $table) {
+        Schema::create('surat_jalan', function (Blueprint $table) {
             $table->id();
 
             // Nomor resmi baru terbit saat posting — draft belum bernomor.
             $table->string('nomor_surat_jalan', 40)->nullable()->unique();
 
-            $table->foreignId('gudang_id')->constrained('gudangs')->restrictOnDelete();
-            $table->foreignId('lokasi_id')->constrained('lokasis')->restrictOnDelete();
+            $table->foreignId('gudang_id')->constrained('gudang')->restrictOnDelete();
+            $table->foreignId('lokasi_id')->constrained('lokasi')->restrictOnDelete();
             $table->date('tanggal');
 
             $table->string('ekspedisi')->nullable();
@@ -44,6 +44,6 @@ return new class extends Migration
 
     public function down(): void
     {
-        Schema::dropIfExists('surat_jalans');
+        Schema::dropIfExists('surat_jalan');
     }
 };

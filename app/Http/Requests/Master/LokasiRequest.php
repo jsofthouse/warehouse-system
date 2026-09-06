@@ -17,7 +17,7 @@ class LokasiRequest extends FormRequest
         $lokasiId = $this->route('lokasi')?->id;
 
         return [
-            'kode' => ['required', 'string', 'max:30', Rule::unique('lokasis', 'kode')->ignore($lokasiId)],
+            'kode' => ['required', 'string', 'max:30', Rule::unique('lokasi', 'kode')->ignore($lokasiId)],
             'nama_kodim' => ['required', 'string', 'max:255'],
             'provinsi' => ['required', 'string', 'max:255'],
             'kabupaten' => ['nullable', 'string', 'max:255'],

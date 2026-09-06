@@ -11,9 +11,9 @@ return new class extends Migration
         // Tarif itu data, bukan konstanta kode (lihat "Modul Invoice Sewa Gudang" §4).
         // Ganti tarif = tutup baris lama (berlaku_sampai) + baris baru, TIDAK PERNAH
         // mengubah baris lama, supaya invoice lama tetap bisa direproduksi persis.
-        Schema::create('tarif_sewas', function (Blueprint $table) {
+        Schema::create('tarif_sewa', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('gudang_id')->constrained('gudangs')->restrictOnDelete();
+            $table->foreignId('gudang_id')->constrained('gudang')->restrictOnDelete();
             $table->enum('basis', ['KG_AKTUAL', 'KG_VOLUMETRIK', 'KG_TERBESAR', 'M3', 'UNIT']);
             $table->decimal('tarif_per_satuan_per_hari', 15, 2);
             $table->decimal('faktor_volumetrik_kg_per_m3', 10, 2)->default(250);
@@ -31,6 +31,6 @@ return new class extends Migration
 
     public function down(): void
     {
-        Schema::dropIfExists('tarif_sewas');
+        Schema::dropIfExists('tarif_sewa');
     }
 };

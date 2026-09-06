@@ -17,7 +17,7 @@ class ItemRequest extends FormRequest
         $itemId = $this->route('item')?->id;
 
         return [
-            'kode' => ['required', 'string', 'max:30', Rule::unique('items', 'kode')->ignore($itemId)],
+            'kode' => ['required', 'string', 'max:30', Rule::unique('item', 'kode')->ignore($itemId)],
             'nama' => ['required', 'string', 'max:255'],
             'satuan' => ['required', 'string', 'max:20'],
             'berat_kg' => ['nullable', 'numeric', 'min:0', 'max:99999999.999'],

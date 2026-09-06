@@ -29,7 +29,7 @@ use Illuminate\View\View;
  * Modul Barang Masuk (Penerimaan) — Fase 1.
  *
  * Tiga aturan inti yang mengatur bentuk controller ini:
- * - Stok cuma berubah lewat baris baru di `stok_mutasis`, tidak pernah lewat
+ * - Stok cuma berubah lewat baris baru di `stok_mutasi`, tidak pernah lewat
  *   UPDATE kolom stok (CLAUDE.md §5.1).
  * - Draft tidak menyentuh stok; nomor resmi dan mutasi lahir bersamaan saat
  *   posting, di dalam satu transaksi (CLAUDE.md §5.3 & §5.4).
@@ -50,7 +50,7 @@ class PenerimaanController extends Controller
         // Whitelist filter: kolom urut dan nilai status tidak pernah datang
         // mentah dari query string ("08-keamanan.md" §6.1).
         $filter = $request->validate([
-            'gudang_id' => ['nullable', 'integer', 'exists:gudangs,id'],
+            'gudang_id' => ['nullable', 'integer', 'exists:gudang,id'],
             'status' => ['nullable', Rule::enum(StatusPenerimaan::class)],
             'dari' => ['nullable', 'date'],
             'sampai' => ['nullable', 'date', 'after_or_equal:dari'],
@@ -227,7 +227,7 @@ class PenerimaanController extends Controller
                 self::PREFIX_NOMOR,
                 $penerimaan->gudang->kodeDokumen(),
                 (int) $penerimaan->tanggal->year,
-                'penerimaans',
+                'penerimaan',
                 'nomor_penerimaan',
             );
 

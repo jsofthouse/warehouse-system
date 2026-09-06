@@ -30,7 +30,7 @@ class PenerimaanRequest extends FormRequest
             // user tanpa penempatan ditolak dengan pesan, bukan error 500.
             'gudang_id' => [
                 'required', 'integer',
-                Rule::exists('gudangs', 'id')->where('is_active', true),
+                Rule::exists('gudang', 'id')->where('is_active', true),
             ],
 
             // Backdate bebas (dokumen sering telat diinput), tapi tanggal yang
@@ -47,7 +47,7 @@ class PenerimaanRequest extends FormRequest
             'detail' => ['sometimes', 'array', 'max:200'],
             'detail.*.item_id' => [
                 'required', 'integer', 'distinct',
-                Rule::exists('items', 'id')->where('is_active', true),
+                Rule::exists('item', 'id')->where('is_active', true),
             ],
             'detail.*.jumlah' => ['required', 'integer', 'min:1', 'max:1000000'],
             'detail.*.keterangan' => ['nullable', 'string', 'max:255'],

@@ -282,7 +282,7 @@ class SuratJalanTest extends TestCase
         // Stok on-hand berkurang persis sebanyak yang dikirim.
         $this->assertSame(13, $this->stokOnHand($gudang, $item));
 
-        $this->assertDatabaseHas('activity_logs', [
+        $this->assertDatabaseHas('activity_log', [
             'aksi' => 'post',
             'subjek_type' => SuratJalan::class,
             'subjek_id' => $dokumen->id,
@@ -360,7 +360,7 @@ class SuratJalanTest extends TestCase
 
         $this->expectException(QueryException::class);
 
-        DB::table('surat_jalans')->where('id', $kembar->id)->update(['nomor_surat_jalan' => $nomor]);
+        DB::table('surat_jalan')->where('id', $kembar->id)->update(['nomor_surat_jalan' => $nomor]);
     }
 
     public function test_posting_draft_kosong_dan_dokumen_ter_posting_ditolak(): void
@@ -436,7 +436,7 @@ class SuratJalanTest extends TestCase
             ->assertOk()
             ->assertDontSee(route('surat-jalan.batalkan.form', $dokumen));
 
-        $this->assertDatabaseHas('activity_logs', [
+        $this->assertDatabaseHas('activity_log', [
             'aksi' => 'terima',
             'subjek_type' => SuratJalan::class,
             'subjek_id' => $dokumen->id,
@@ -578,7 +578,7 @@ class SuratJalanTest extends TestCase
 
         Event::assertDispatched(SuratJalanDibatalkan::class);
 
-        $this->assertDatabaseHas('activity_logs', [
+        $this->assertDatabaseHas('activity_log', [
             'aksi' => 'cancel',
             'subjek_type' => SuratJalan::class,
             'subjek_id' => $dokumen->id,

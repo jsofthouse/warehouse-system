@@ -8,10 +8,10 @@ return new class extends Migration
 {
     public function up(): void
     {
-        Schema::create('alokasi_kebutuhans', function (Blueprint $table) {
+        Schema::create('alokasi_kebutuhan', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('lokasi_id')->constrained('lokasis')->cascadeOnDelete();
-            $table->foreignId('item_id')->constrained('items')->restrictOnDelete();
+            $table->foreignId('lokasi_id')->constrained('lokasi')->cascadeOnDelete();
+            $table->foreignId('item_id')->constrained('item')->restrictOnDelete();
             $table->unsignedInteger('jumlah_kebutuhan')->default(0);
             $table->timestamps();
 
@@ -22,6 +22,6 @@ return new class extends Migration
 
     public function down(): void
     {
-        Schema::dropIfExists('alokasi_kebutuhans');
+        Schema::dropIfExists('alokasi_kebutuhan');
     }
 };

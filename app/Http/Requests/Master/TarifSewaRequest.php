@@ -18,7 +18,7 @@ class TarifSewaRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'gudang_id' => ['required', 'exists:gudangs,id'],
+            'gudang_id' => ['required', 'exists:gudang,id'],
             'basis' => ['required', Rule::enum(BasisTarif::class)],
             'tarif_per_satuan_per_hari' => ['required', 'numeric', 'min:0', 'max:999999999999.99'],
             'faktor_volumetrik_kg_per_m3' => ['nullable', 'numeric', 'min:0.01', 'max:99999999.99'],

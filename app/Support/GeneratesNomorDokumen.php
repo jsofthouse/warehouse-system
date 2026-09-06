@@ -51,7 +51,7 @@ trait GeneratesNomorDokumen
      *       'SJ/{gudang}/{urut}/{romawi}/{tahun}',
      *       ['gudang' => 'SMG', 'romawi' => 'IX', 'tahun' => 2026],
      *       ['gudang', 'tahun'],           // bulan TIDAK mengunci deret
-     *       'surat_jalans', 'nomor_surat_jalan',
+     *       'surat_jalan', 'nomor_surat_jalan',
      *   );  // -> SJ/SMG/0042/IX/2026
      *
      * $kunciDeret menentukan segmen mana yang membentuk satu deret nomor.

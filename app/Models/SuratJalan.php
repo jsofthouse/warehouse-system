@@ -8,6 +8,11 @@ use Illuminate\Database\Eloquent\Model;
 
 class SuratJalan extends Model
 {
+    // Nama tabel tunggal bahasa Indonesia, bukan jamak ala Laravel
+    // (CLAUDE.md §9). Konvensi otomatis Eloquent tidak cocok, jadi
+    // tabelnya dinyatakan eksplisit.
+    protected $table = 'surat_jalan';
+
     /**
      * `nomor_surat_jalan`, `status`, `posted_by/at`, `dibatalkan_by/at`,
      * `tanggal_terima`, `nomor_bast`, dan `nama_penerima` sengaja TIDAK ikut

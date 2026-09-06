@@ -8,10 +8,10 @@ return new class extends Migration
 {
     public function up(): void
     {
-        Schema::create('invoice_details', function (Blueprint $table) {
+        Schema::create('invoice_detail', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('invoice_id')->constrained('invoices')->cascadeOnDelete();
-            $table->foreignId('item_id')->constrained('items')->restrictOnDelete();
+            $table->foreignId('invoice_id')->constrained('invoice')->cascadeOnDelete();
+            $table->foreignId('item_id')->constrained('item')->restrictOnDelete();
 
             // Snapshot di titik posting — supaya invoice lama tetap bisa direproduksi
             // persis walau tarif/basis master berubah belakangan.
@@ -31,6 +31,6 @@ return new class extends Migration
 
     public function down(): void
     {
-        Schema::dropIfExists('invoice_details');
+        Schema::dropIfExists('invoice_detail');
     }
 };

@@ -34,7 +34,7 @@ use Illuminate\View\View;
  *
  * Aturan inti yang mengatur bentuk controller ini
  * ("10-modul-surat-jalan.md" §2 dan §5):
- * - Stok cuma berubah lewat baris baru di `stok_mutasis`, tidak pernah lewat
+ * - Stok cuma berubah lewat baris baru di `stok_mutasi`, tidak pernah lewat
  *   UPDATE kolom stok.
  * - Draft tidak menyentuh stok; nomor resmi dan mutasi OUT lahir bersamaan saat
  *   posting, di dalam satu transaksi dengan penguncian baris.
@@ -64,8 +64,8 @@ class SuratJalanController extends Controller
         // Whitelist filter: kolom urut dan nilai status tidak pernah datang
         // mentah dari query string ("08-keamanan.md" §6.1).
         $filter = $request->validate([
-            'gudang_id' => ['nullable', 'integer', 'exists:gudangs,id'],
-            'lokasi_id' => ['nullable', 'integer', 'exists:lokasis,id'],
+            'gudang_id' => ['nullable', 'integer', 'exists:gudang,id'],
+            'lokasi_id' => ['nullable', 'integer', 'exists:lokasi,id'],
             'status' => ['nullable', Rule::enum(StatusSuratJalan::class)],
             'dari' => ['nullable', 'date'],
             'sampai' => ['nullable', 'date', 'after_or_equal:dari'],
@@ -142,8 +142,8 @@ class SuratJalanController extends Controller
         $this->pastikanPunyaPenempatan($user);
 
         $data = $request->validate([
-            'lokasi_id' => ['required', 'integer', Rule::exists('lokasis', 'id')->where('is_active', true)],
-            'gudang_id' => ['nullable', 'integer', Rule::exists('gudangs', 'id')->where('is_active', true)],
+            'lokasi_id' => ['required', 'integer', Rule::exists('lokasi', 'id')->where('is_active', true)],
+            'gudang_id' => ['nullable', 'integer', Rule::exists('gudang', 'id')->where('is_active', true)],
         ]);
 
         // gudang_id dari query string cuma dipakai kalau usernya memang lintas
@@ -318,7 +318,7 @@ class SuratJalanController extends Controller
                     'tahun' => (int) $suratJalan->tanggal->year,
                 ],
                 ['gudang', 'tahun'],
-                'surat_jalans',
+                'surat_jalan',
                 'nomor_surat_jalan',
             );
 

@@ -8,6 +8,11 @@ use Illuminate\Database\Eloquent\Model;
 
 class Penerimaan extends Model
 {
+    // Nama tabel tunggal bahasa Indonesia, bukan jamak ala Laravel
+    // (CLAUDE.md §9). Konvensi otomatis Eloquent tidak cocok, jadi
+    // tabelnya dinyatakan eksplisit.
+    protected $table = 'penerimaan';
+
     /**
      * `nomor_penerimaan`, `status`, `posted_by/at`, dan `dibatalkan_by/at`
      * sengaja TIDAK ikut $fillable: semuanya diisi server lewat forceFill() di

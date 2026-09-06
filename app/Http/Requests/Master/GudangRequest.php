@@ -18,7 +18,7 @@ class GudangRequest extends FormRequest
         $gudangId = $this->route('gudang')?->id;
 
         return [
-            'kode' => ['required', 'string', 'max:20', Rule::unique('gudangs', 'kode')->ignore($gudangId)],
+            'kode' => ['required', 'string', 'max:20', Rule::unique('gudang', 'kode')->ignore($gudangId)],
             'nama' => ['required', 'string', 'max:255'],
             'kota' => ['nullable', 'string', 'max:255'],
             'alamat' => ['nullable', 'string', 'max:1000'],

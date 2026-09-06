@@ -8,13 +8,13 @@ return new class extends Migration
 {
     public function up(): void
     {
-        // Snapshot stok akhir hari, ditulis scheduler tiap malam dari stok_mutasis.
+        // Snapshot stok akhir hari, ditulis scheduler tiap malam dari stok_mutasi.
         // Idempoten: hitung ulang tanggal yang sama harus overwrite baris ini, bukan
         // menambah baris baru — makanya unique (gudang_id, item_id, tanggal).
-        Schema::create('stok_harians', function (Blueprint $table) {
+        Schema::create('stok_harian', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('gudang_id')->constrained('gudangs')->restrictOnDelete();
-            $table->foreignId('item_id')->constrained('items')->restrictOnDelete();
+            $table->foreignId('gudang_id')->constrained('gudang')->restrictOnDelete();
+            $table->foreignId('item_id')->constrained('item')->restrictOnDelete();
             $table->date('tanggal');
             $table->unsignedInteger('stok_akhir');
             $table->timestamps();
@@ -25,6 +25,6 @@ return new class extends Migration
 
     public function down(): void
     {
-        Schema::dropIfExists('stok_harians');
+        Schema::dropIfExists('stok_harian');
     }
 };
