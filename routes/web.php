@@ -7,6 +7,7 @@ use App\Http\Controllers\Master\LokasiController;
 use App\Http\Controllers\Master\TarifSewaController;
 use App\Http\Controllers\Pengguna\UserController;
 use App\Http\Controllers\Transaksi\PenerimaanController;
+use App\Http\Controllers\Transaksi\SuratJalanController;
 use Illuminate\Support\Facades\Route;
 
 Route::middleware(['auth', 'active'])->group(function () {
@@ -50,10 +51,41 @@ Route::middleware(['auth', 'active'])->group(function () {
         Route::get('{penerimaan}', [PenerimaanController::class, 'show'])->name('show');
     });
 
-    Route::view('/surat-jalan', 'placeholder', [
-        'title' => 'Surat Jalan',
-        'pretitle' => 'Transaksi',
-    ])->name('surat-jalan.index');
+    // Surat Jalan (Barang Keluar). Matriks hak akses ada di
+    // "10-modul-surat-jalan.md" §6:
+    // - Baca (index/show/cetak): semua role yang login, termasuk viewer.
+    //   Scoping gudang_id-nya di query + SuratJalanPolicy, bukan di tampilan.
+    // - Tulis draft, posting, tandai diterima: super_admin, operator_pusat,
+    //   operator_gudang (yang terakhir terbatas ke gudangnya sendiri).
+    // - Pembatalan dokumen ter-posting: super_admin & operator_pusat saja.
+    Route::prefix('surat-jalan')->name('surat-jalan.')->group(function () {
+
+        Route::get('/', [SuratJalanController::class, 'index'])->name('index');
+
+        Route::middleware('role:super_admin,operator_pusat,operator_gudang')->group(function () {
+            Route::get('create', [SuratJalanController::class, 'create'])->name('create');
+            // Tabel empat angka pembanding, dipanggil Alpine begitu lokasi dipilih.
+            Route::get('pembanding', [SuratJalanController::class, 'pembanding'])->name('pembanding');
+            Route::post('/', [SuratJalanController::class, 'store'])->name('store');
+            Route::get('{suratJalan}/edit', [SuratJalanController::class, 'edit'])->name('edit');
+            Route::put('{suratJalan}', [SuratJalanController::class, 'update'])->name('update');
+            Route::post('{suratJalan}/posting', [SuratJalanController::class, 'posting'])->name('posting');
+            Route::get('{suratJalan}/diterima', [SuratJalanController::class, 'formTandaiDiterima'])->name('diterima.form');
+            Route::post('{suratJalan}/diterima', [SuratJalanController::class, 'tandaiDiterima'])->name('diterima');
+        });
+
+        Route::middleware('role:super_admin,operator_pusat')->group(function () {
+            Route::get('{suratJalan}/batalkan', [SuratJalanController::class, 'formBatalkan'])->name('batalkan.form');
+            Route::post('{suratJalan}/batalkan', [SuratJalanController::class, 'batalkan'])->name('batalkan');
+        });
+
+        // Render PDF mahal, jadi dibatasi lajunya ("08-keamanan.md" §11.5).
+        Route::get('{suratJalan}/cetak', [SuratJalanController::class, 'cetak'])
+            ->middleware('throttle:30,1')
+            ->name('cetak');
+
+        Route::get('{suratJalan}', [SuratJalanController::class, 'show'])->name('show');
+    });
 
     Route::view('/invoice', 'placeholder', [
         'title' => 'Invoice Sewa Gudang',
