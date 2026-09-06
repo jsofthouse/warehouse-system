@@ -165,17 +165,18 @@
 
     {{-- Detail data_lama/data_baru, JSON pretty-print, di-escape otomatis lewat
          x-text (bukan x-html) — docs/12-modul-activity-log.md §5.3.
-         Wrapper x-show sengaja BUKAN class "modal" bawaan Bootstrap — CSS-nya
-         mendeklarasikan display:none langsung di stylesheet (bukan cuma
-         default browser), jadi begitu Alpine melepas override inline-nya
-         balik ke "shown", stylesheet itu menang lagi dan modalnya tidak
-         pernah kelihatan. Class modal-dialog/modal-content dst di dalam
-         wrapper ini aman dipakai (tidak ada default display:none). --}}
-    <div x-show="detailAktif" x-cloak
-        class="position-fixed top-0 start-0 w-100 h-100 d-flex align-items-center justify-content-center p-3"
-        style="z-index: 1055; background: rgba(0, 0, 0, .35)"
+         Visibilitas dikontrol lewat :style (bukan x-show) supaya class "modal"
+         bawaan Bootstrap/Tabler tetap dipakai — class itu yang mendefinisikan
+         CSS custom property (warna, border, radius) yang dipakai modal-content/
+         modal-header/dst, jadi harus tetap ada di elemen ini walaupun stylesheet-
+         nya sendiri set display:none. x-show murni untuk hal itu bentrok
+         (Alpine melepas override-nya jadi '' begitu "shown", stylesheet
+         display:none menang lagi) — :style selalu menulis nilai eksplisit
+         sehingga tidak pernah kosong. --}}
+    <div class="modal" tabindex="-1" x-cloak
+        :style="detailAktif ? 'display: block' : 'display: none'"
         @keydown.escape.window="detailAktif = null" @click.self="detailAktif = null">
-        <div class="modal-dialog modal-lg m-0" style="max-height: 90vh" @click.stop>
+        <div class="modal-dialog modal-lg modal-dialog-centered" @click.stop>
             <div class="modal-content">
                 <div class="modal-header">
                     <h5 class="modal-title" x-text="detailAktif ? detailAktif.aksi + ' — ' + detailAktif.waktu : ''"></h5>
@@ -184,15 +185,16 @@
                 <div class="modal-body" style="max-height: 70vh; overflow-y: auto">
                     <div class="mb-3">
                         <div class="form-label">Data Lama</div>
-                        <pre class="bg-body-secondary p-2 rounded" x-text="detailAktif ? JSON.stringify(detailAktif.dataLama, null, 2) : ''"></pre>
+                        <pre x-text="detailAktif ? JSON.stringify(detailAktif.dataLama, null, 2) : ''"></pre>
                     </div>
                     <div>
                         <div class="form-label">Data Baru</div>
-                        <pre class="bg-body-secondary p-2 rounded" x-text="detailAktif ? JSON.stringify(detailAktif.dataBaru, null, 2) : ''"></pre>
+                        <pre x-text="detailAktif ? JSON.stringify(detailAktif.dataBaru, null, 2) : ''"></pre>
                     </div>
                 </div>
             </div>
         </div>
     </div>
+    <div class="modal-backdrop" x-cloak :style="detailAktif ? 'display: block; opacity: .35' : 'display: none'"></div>
 </div>
 @endsection
