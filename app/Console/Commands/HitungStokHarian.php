@@ -14,9 +14,11 @@ use Illuminate\Support\Carbon;
  * Sewa Gudang (kg-hari dihitung dari tabel ini, bukan dari `stok_mutasi`
  * langsung). Lihat "Modul Kartu Stok dan Stok Harian.md" §4.2.
  *
- * Idempoten: `updateOrCreate` pada unique key (gudang_id, item_id, tanggal),
- * jadi menjalankan ulang untuk tanggal yang sama meng-overwrite baris yang
- * sama, bukan menambah baris baru (§2 prinsip 2 dokumen yang sama).
+ * Idempoten: dicari dulu baris existing lewat whereDate() (bukan
+ * updateOrCreate() langsung — lihat catatan di handle()), lalu update kalau
+ * ketemu atau create kalau belum ada. Menjalankan ulang untuk tanggal yang
+ * sama meng-overwrite baris yang sama, bukan menambah baris baru (§2 prinsip
+ * 2 dokumen yang sama).
  *
  * Tiap tanggal dihitung independen dari ledger (`StokMutasi::saldoAkhir()`),
  * bukan berantai dari snapshot hari sebelumnya (§2 prinsip 3) — supaya satu
@@ -77,14 +79,33 @@ class HitungStokHarian extends Command
                 foreach ($daftarItem as $item) {
                     $stokAkhir = StokMutasi::saldoAkhir($gudang->id, $item->id, $tanggal);
 
-                    StokHarian::updateOrCreate(
-                        [
+                    // updateOrCreate() TIDAK dipakai di sini dengan sengaja: kolom
+                    // `tanggal` ber-cast 'date', jadi Eloquent menulisnya ke DB
+                    // dalam format 'Y-m-d H:i:s' (lewat fromDateTime(), lihat
+                    // getDateFormat()) tapi pencarian bawaan updateOrCreate()
+                    // membandingkan dengan string mentah 'Y-m-d' tanpa lewat cast
+                    // — dua representasi itu tidak pernah cocok, jadi baris yang
+                    // sama ditulis ulang sebagai INSERT baru dan menabrak unique
+                    // constraint (gudang_id, item_id, tanggal). whereDate()
+                    // membandingkan bagian tanggalnya saja, jadi aman dari format
+                    // waktu apa pun yang tersimpan — pola yang sama dengan filter
+                    // tanggal di PenerimaanController::index().
+                    $baris = StokHarian::query()
+                        ->where('gudang_id', $gudang->id)
+                        ->where('item_id', $item->id)
+                        ->whereDate('tanggal', $tanggal->toDateString())
+                        ->first();
+
+                    if ($baris) {
+                        $baris->update(['stok_akhir' => max(0, $stokAkhir)]);
+                    } else {
+                        StokHarian::create([
                             'gudang_id' => $gudang->id,
                             'item_id' => $item->id,
                             'tanggal' => $tanggal->toDateString(),
-                        ],
-                        ['stok_akhir' => max(0, $stokAkhir)],
-                    );
+                            'stok_akhir' => max(0, $stokAkhir),
+                        ]);
+                    }
 
                     $jumlahBaris++;
                 }

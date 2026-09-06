@@ -157,9 +157,15 @@ class StokController extends Controller
 
         $daftarItem = $this->itemAktif();
 
+        // whereDate() dua sisi, bukan whereBetween() dengan string mentah — kolom
+        // `tanggal` ber-cast 'date' ditulis ke DB sebagai 'Y-m-d H:i:s' (lihat
+        // catatan di HitungStokHarian::handle()), jadi BETWEEN string biasa bisa
+        // memotong tanggal terakhir dari rentang. whereDate() membandingkan
+        // bagian tanggalnya saja, aman dari format waktu yang tersimpan.
         $snapshot = StokHarian::query()
             ->where('gudang_id', $gudangId)
-            ->whereBetween('tanggal', [$dari->toDateString(), $sampai->toDateString()])
+            ->whereDate('tanggal', '>=', $dari->toDateString())
+            ->whereDate('tanggal', '<=', $sampai->toDateString())
             ->get()
             ->groupBy(fn (StokHarian $s) => $s->tanggal->toDateString())
             ->map(fn ($baris) => $baris->keyBy('item_id'));
