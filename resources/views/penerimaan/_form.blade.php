@@ -187,6 +187,19 @@
                 rows: (awal.length ? awal : [{}]).map(buatBaris),
                 ts: {},
 
+                init() {
+                    // Tom Select mendaftarkan listener scroll-nya di window tanpa
+                    // capture, jadi yang terdengar cuma scroll dokumen. Geseran
+                    // horizontal .table-responsive — muncul di layar sempit — tidak
+                    // pernah sampai ke sana, dan dropdown yang sedang terbuka
+                    // ketinggalan di tempat lamanya. Dipantau sendiri di sini.
+                    this.$el.querySelector('.table-responsive')?.addEventListener('scroll', () => {
+                        Object.values(this.ts).forEach((instance) => {
+                            if (instance.isOpen) instance.positionDropdown();
+                        });
+                    }, { passive: true });
+                },
+
                 tambah() {
                     this.rows.push(buatBaris());
                 },
@@ -211,6 +224,12 @@
                     const instance = new TomSelect(el, {
                         placeholder: 'Pilih item…',
                         maxOptions: null,
+                        // Tabelnya dibungkus .table-responsive yang overflow-nya auto,
+                        // jadi dropdown yang jadi anak sel ikut terpotong dan malah
+                        // memunculkan scrollbar di dalam tabel. Ditempel ke <body>
+                        // supaya mengambang di atas tabel. Scroll halaman diikuti
+                        // Tom Select sendiri; scroll tabel ditangani init() di atas.
+                        dropdownParent: 'body',
                         options: this.items.map(i => ({ value: String(i.id), text: i.label })),
                         items: row.item_id ? [String(row.item_id)] : [],
                         onChange: (value) => {

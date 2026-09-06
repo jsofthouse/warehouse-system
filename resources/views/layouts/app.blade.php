@@ -27,6 +27,45 @@
             font-size: var(--tblr-icon-size, 1.25rem);
             vertical-align: middle;
         }
+
+        /* Tema tom-select.bootstrap5 menulis warnanya sebagai var(--bs-*), padahal
+           Tabler menerbitkan var(--tblr-*). Semua var itu tidak pernah resolve, jadi
+           background dropdown jatuh ke transparan dan bordernya ikut hilang. Dijembatani
+           di elemen Tom Select-nya sendiri (bukan di :root) supaya nilainya ikut
+           data-bs-theme tempat elemennya berada. */
+        .ts-wrapper,
+        .ts-control,
+        .ts-dropdown {
+            --bs-body-bg: var(--tblr-bg-surface);
+            --bs-body-color: var(--tblr-body-color);
+            --bs-border-color: var(--tblr-border-color);
+            --bs-border-color-translucent: var(--tblr-border-color-translucent);
+            --bs-border-radius: var(--tblr-border-radius);
+            --bs-border-radius-lg: var(--tblr-border-radius-lg);
+            --bs-border-radius-sm: var(--tblr-border-radius-sm);
+            --bs-border-width: var(--tblr-border-width);
+            --bs-box-shadow-inset: var(--tblr-box-shadow-inset);
+            --bs-form-invalid-color: var(--tblr-form-invalid-color);
+            --bs-form-valid-color: var(--tblr-form-valid-color);
+            --bs-secondary-bg: var(--tblr-secondary-bg);
+            --bs-secondary-color: var(--tblr-secondary-color);
+            --bs-tertiary-bg: var(--tblr-tertiary-bg);
+        }
+
+        /* Dropdown yang dipasang dengan dropdownParent: 'body' keluar dari stacking
+           context wrapper-nya, jadi z-index bawaannya kalah dari navbar, header sticky,
+           dan modal Tabler. Diangkat ke atas modal (1055).
+
+           top/left di-nol-kan karena default tema (top: 100%) dihitung relatif ke <body>:
+           sepersekian frame sebelum Tom Select menulis posisi aslinya, dropdown menempel
+           di dasar dokumen, halaman jadi lebih tinggi, scrollbar muncul, dan layout
+           bergeser ~15px. Posisi yang terlanjur diukur di frame itu ikut meleset. */
+        body > .ts-dropdown {
+            z-index: 1056;
+            top: 0;
+            left: 0;
+            color: var(--bs-body-color);
+        }
     </style>
 
     @stack('styles')
