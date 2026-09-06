@@ -32,7 +32,7 @@ Terakhir disegarkan 6 September 2026 (sore — Kartu Stok & Stok Harian ditambah
 
 | Aspek | Status |
 |---|---|
-| Tahap | **Fase 1 berjalan.** Auth & RBAC, master data, Modul Barang Masuk, Modul Surat Jalan, dan Modul Kartu Stok & Stok Harian sudah jadi di kode. Berikutnya Modul Invoice Sewa Gudang — Stok Harian sudah siap jadi basisnya. |
+| Tahap | **Fase 1 berjalan.** Auth & RBAC, master data, Modul Barang Masuk, Modul Surat Jalan, dan Modul Kartu Stok & Stok Harian sudah jadi di kode dan lolos test. Berikutnya Modul Invoice Sewa Gudang — Stok Harian sudah siap jadi basisnya. |
 | Repo | `gudang-alkap`, branch `main`, remote `jsofthouse/warehouse-system` |
 | Lingkungan | Masih lokal (Laragon, `APP_ENV=local`, MySQL `whs`). Target tetap online multi-user di VPS, belum dideploy. |
 | Skala lokasi | Belum final (32 baris terlihat di data awal) |
@@ -48,7 +48,7 @@ Terakhir disegarkan 6 September 2026 (sore — Kartu Stok & Stok Harian ditambah
 | Master gudang, item, lokasi, alokasi kebutuhan, tarif sewa | Jadi |
 | Barang Masuk (Penerimaan) | Jadi — draft, posting, pembatalan, cetak PDF |
 | Surat Jalan | Jadi — draft, posting, tandai diterima, pembatalan, cetak tiga rangkap |
-| Kartu Stok & Stok Harian | Jadi — ringkasan stok on-hand, riwayat mutasi berpaginasi, snapshot harian terjadwal + hitung ulang manual. Sempat ada bug (mismatch format tanggal di `updateOrCreate`, ketahuan dari test Jo, sudah di-fix commit `52900cd`) — lihat `docs/11-modul-kartu-stok-dan-stok-harian.md` §11 |
+| Kartu Stok & Stok Harian | Jadi — ringkasan stok on-hand, riwayat mutasi berpaginasi, snapshot harian terjadwal + hitung ulang manual. Sempat ada bug (mismatch format tanggal di `updateOrCreate`, sudah di-fix commit `52900cd`) — **6/6 test hijau dikonfirmasi Jo** |
 | Invoice Sewa Gudang | **Belum** — terhalang data berat barang |
 | Laporan (distribusi, biaya sewa) | **Belum** |
 
