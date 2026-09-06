@@ -7,6 +7,7 @@ use App\Http\Controllers\Master\LokasiController;
 use App\Http\Controllers\Master\TarifSewaController;
 use App\Http\Controllers\Pengguna\UserController;
 use App\Http\Controllers\Transaksi\PenerimaanController;
+use App\Http\Controllers\Transaksi\StokController;
 use App\Http\Controllers\Transaksi\SuratJalanController;
 use Illuminate\Support\Facades\Route;
 
@@ -92,10 +93,22 @@ Route::middleware(['auth', 'active'])->group(function () {
         'pretitle' => 'Transaksi',
     ])->name('invoice.index');
 
-    Route::view('/stok', 'placeholder', [
-        'title' => 'Kartu Stok',
-        'pretitle' => 'Transaksi',
-    ])->name('stok.index');
+    // Kartu Stok & Stok Harian. Matriks hak akses ada di
+    // "Modul Kartu Stok dan Stok Harian.md" §6:
+    // - Kartu Stok (index/riwayat): semua role yang login, termasuk viewer.
+    //   Scoping gudang_id di query, bukan di tampilan (CLAUDE.md §5.2).
+    // - Stok Harian & hitung ulang manual: super_admin, operator_pusat saja —
+    //   ini alat verifikasi pusat sebelum invoice terbit, bukan alat kerja
+    //   harian operator gudang.
+    Route::prefix('stok')->name('stok.')->group(function () {
+        Route::get('/', [StokController::class, 'index'])->name('index');
+        Route::get('{item}/riwayat', [StokController::class, 'riwayat'])->name('riwayat');
+
+        Route::middleware('role:super_admin,operator_pusat')->group(function () {
+            Route::get('harian', [StokController::class, 'harian'])->name('harian');
+            Route::post('harian/hitung-ulang', [StokController::class, 'hitungUlang'])->name('harian.hitung-ulang');
+        });
+    });
 
     // --- Master data -----------------------------------------------------------
     //

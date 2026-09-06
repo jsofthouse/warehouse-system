@@ -28,11 +28,11 @@ Tiga keluaran utama sistem:
 
 ## 2. Status
 
-Terakhir disegarkan 6 September 2026.
+Terakhir disegarkan 6 September 2026 (sore — Kartu Stok & Stok Harian ditambahkan).
 
 | Aspek | Status |
 |---|---|
-| Tahap | **Fase 1 berjalan.** Auth & RBAC, master data, Modul Barang Masuk, dan Modul Surat Jalan sudah jadi di kode. Berikutnya Modul Invoice Sewa Gudang. |
+| Tahap | **Fase 1 berjalan.** Auth & RBAC, master data, Modul Barang Masuk, Modul Surat Jalan, dan Modul Kartu Stok & Stok Harian sudah jadi di kode. Berikutnya Modul Invoice Sewa Gudang — Stok Harian sudah siap jadi basisnya. |
 | Repo | `gudang-alkap`, branch `main`, remote `jsofthouse/warehouse-system` |
 | Lingkungan | Masih lokal (Laragon, `APP_ENV=local`, MySQL `whs`). Target tetap online multi-user di VPS, belum dideploy. |
 | Skala lokasi | Belum final (32 baris terlihat di data awal) |
@@ -48,8 +48,9 @@ Terakhir disegarkan 6 September 2026.
 | Master gudang, item, lokasi, alokasi kebutuhan, tarif sewa | Jadi |
 | Barang Masuk (Penerimaan) | Jadi — draft, posting, pembatalan, cetak PDF |
 | Surat Jalan | Jadi — draft, posting, tandai diterima, pembatalan, cetak tiga rangkap |
+| Kartu Stok & Stok Harian | Jadi — ringkasan stok on-hand, riwayat mutasi berpaginasi, snapshot harian terjadwal + hitung ulang manual. Test belum sempat dijalankan di sesi ini (lihat `docs/11-modul-kartu-stok-dan-stok-harian.md` §11) |
 | Invoice Sewa Gudang | **Belum** — terhalang data berat barang |
-| Kartu stok, snapshot stok harian, laporan | **Belum** |
+| Laporan (distribusi, biaya sewa) | **Belum** |
 
 Dua hal yang menggantung dan sudah diketahui:
 
@@ -180,6 +181,7 @@ contoh perhitungan ada di `docs/04-invoice-sewa-gudang.md`.
 | `docs/08-keamanan.md` | Checklist keamanan aplikasi dan database |
 | `docs/09-modul-barang-masuk.md` | Rancangan detail modul barang masuk — **sudah dieksekusi**; dokumennya sendiri masih bertanda "siap eksekusi" dan belum punya catatan eksekusi. Juga mencatat perubahan dari `02`/`03`. |
 | `docs/10-modul-surat-jalan.md` | Rancangan detail modul surat jalan — **sudah dieksekusi**; hasil eksekusi dan tiap penyimpangan dari rencana ada di §12. Juga mencatat perubahan dari `02`/`03`/`05`. |
+| `docs/11-modul-kartu-stok-dan-stok-harian.md` | Rancangan detail Kartu Stok & Stok Harian — **sudah dieksekusi**; catatan eksekusi dan status test ada di §11. Prasyarat teknis Modul Invoice (§6.2 dokumen invoice). |
 | `data/item.csv` | Master 17 item, siap jadi seeder |
 | `data/lokasi.csv` | Master lokasi tujuan, siap jadi seeder |
 
