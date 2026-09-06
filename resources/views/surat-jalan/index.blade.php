@@ -127,6 +127,7 @@
                             </td>
                             <td>
                                 <div class="btn-list flex-nowrap">
+                                    <x-riwayat-link :subjek="$suratJalan" />
                                     <a href="{{ route('surat-jalan.show', $suratJalan) }}" class="btn btn-icon btn-sm"
                                         title="Lihat detail">
                                         <i class="ti ti-eye"></i>

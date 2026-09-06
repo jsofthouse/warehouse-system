@@ -51,6 +51,7 @@
             </td>
             <td>
               <div class="btn-list flex-nowrap">
+                <x-riwayat-link :subjek="$u" />
                 <a href="{{ route('users.edit', $u) }}" class="btn btn-icon btn-sm" title="Ubah">
                   <i class="ti ti-pencil"></i>
                 </a>

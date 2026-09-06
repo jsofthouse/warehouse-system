@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\ActivityLogController;
 use App\Http\Controllers\Master\AlokasiController;
 use App\Http\Controllers\Master\GudangController;
 use App\Http\Controllers\Master\ItemController;
@@ -176,10 +177,12 @@ Route::middleware(['auth', 'active'])->group(function () {
         Route::delete('/users/{user}', [UserController::class, 'destroy'])->name('users.destroy');
     });
 
-    Route::view('/activity-log', 'placeholder', [
-        'title' => 'Activity Log',
-        'pretitle' => 'Sistem',
-    ])->name('activity-log.index');
+    // Activity Log — khusus Super Admin (docs/12-modul-activity-log.md §2
+    // keputusan #1). Otorisasi dicek di middleware, bukan cuma disembunyikan
+    // di menu (CLAUDE.md §10 poin 1).
+    Route::get('/activity-log', [ActivityLogController::class, 'index'])
+        ->middleware('role:super_admin')
+        ->name('activity-log.index');
 
 });
 

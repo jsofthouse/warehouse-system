@@ -7,6 +7,8 @@
     <div class="btn-list">
         <a href="{{ route('surat-jalan.index') }}" class="btn btn-link">Kembali</a>
 
+        <x-riwayat-link :subjek="$suratJalan" label="Riwayat" class="btn-outline-secondary" />
+
         @can('cetak', $suratJalan)
             <a href="{{ route('surat-jalan.cetak', $suratJalan) }}" class="btn btn-outline-secondary" target="_blank"
                 rel="noopener">

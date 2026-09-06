@@ -209,12 +209,15 @@ class PenerimaanTest extends TestCase
         $this->assertSame($gudang->id, $mutasi->gudang_id);
         // Mutasi memakai tanggal dokumen, bukan tanggal input.
         $this->assertSame($dokumen->tanggal->toDateString(), $mutasi->tanggal->toDateString());
-        $this->assertSame(Penerimaan::class, $mutasi->referensi_type);
+        // Alias morph map pendek, bukan nama kelas penuh (AppServiceProvider::boot(),
+        // docs/12-modul-activity-log.md §3.2 — berlaku ke semua morphTo/morphMany
+        // yang memakai Penerimaan, termasuk StokMutasi::referensi ini).
+        $this->assertSame('penerimaan', $mutasi->referensi_type);
         $this->assertSame($dokumen->id, $mutasi->referensi_id);
 
         $this->assertDatabaseHas('activity_log', [
             'aksi' => 'post',
-            'subjek_type' => Penerimaan::class,
+            'subjek_type' => 'penerimaan',
             'subjek_id' => $dokumen->id,
         ]);
     }
@@ -362,7 +365,7 @@ class PenerimaanTest extends TestCase
         $this->assertSame($item->id, $balik->item_id);
         $this->assertSame($gudang->id, $balik->gudang_id);
         $this->assertSame($dokumen->tanggal->toDateString(), $balik->tanggal->toDateString());
-        $this->assertSame(Penerimaan::class, $balik->referensi_type);
+        $this->assertSame('penerimaan', $balik->referensi_type);
         $this->assertSame($dokumen->id, $balik->referensi_id);
         $this->assertSame("Pembatalan penerimaan {$nomor}", $balik->keterangan);
 
@@ -373,7 +376,7 @@ class PenerimaanTest extends TestCase
 
         $this->assertDatabaseHas('activity_log', [
             'aksi' => 'cancel',
-            'subjek_type' => Penerimaan::class,
+            'subjek_type' => 'penerimaan',
             'subjek_id' => $dokumen->id,
         ]);
     }

@@ -19,17 +19,6 @@ trait LogsActivity
         ?array $dataBaru = null,
         ?string $deskripsi = null,
     ): void {
-        // $subjek nullable buat aksi yang tidak menempel ke satu baris tertentu,
-        // misal "set alokasi massal ke semua lokasi".
-        ActivityLog::create([
-            'user_id' => auth()->id(),
-            'aksi' => $aksi,
-            'subjek_type' => $subjek?->getMorphClass(),
-            'subjek_id' => $subjek?->getKey(),
-            'deskripsi' => $deskripsi,
-            'data_lama' => $dataLama,
-            'data_baru' => $dataBaru,
-            'ip_address' => request()?->ip(),
-        ]);
+        ActivityLog::catat($aksi, $subjek, $dataLama, $dataBaru, $deskripsi);
     }
 }

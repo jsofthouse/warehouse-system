@@ -276,7 +276,10 @@ class SuratJalanTest extends TestCase
         $this->assertSame($gudang->id, $keluar->gudang_id);
         // Mutasi memakai tanggal dokumen, bukan tanggal input.
         $this->assertSame($dokumen->tanggal->toDateString(), $keluar->tanggal->toDateString());
-        $this->assertSame(SuratJalan::class, $keluar->referensi_type);
+        // Alias morph map pendek, bukan nama kelas penuh (AppServiceProvider::boot(),
+        // docs/12-modul-activity-log.md §3.2 — berlaku ke semua morphTo/morphMany
+        // yang memakai SuratJalan, termasuk StokMutasi::referensi ini).
+        $this->assertSame('surat_jalan', $keluar->referensi_type);
         $this->assertSame($dokumen->id, $keluar->referensi_id);
 
         // Stok on-hand berkurang persis sebanyak yang dikirim.
@@ -284,7 +287,7 @@ class SuratJalanTest extends TestCase
 
         $this->assertDatabaseHas('activity_log', [
             'aksi' => 'post',
-            'subjek_type' => SuratJalan::class,
+            'subjek_type' => 'surat_jalan',
             'subjek_id' => $dokumen->id,
         ]);
     }
@@ -438,7 +441,7 @@ class SuratJalanTest extends TestCase
 
         $this->assertDatabaseHas('activity_log', [
             'aksi' => 'terima',
-            'subjek_type' => SuratJalan::class,
+            'subjek_type' => 'surat_jalan',
             'subjek_id' => $dokumen->id,
         ]);
     }
@@ -558,7 +561,7 @@ class SuratJalanTest extends TestCase
         // Nomor resmi tetap, tidak dipakai ulang.
         $this->assertSame($nomor, $dokumen->nomor_surat_jalan);
 
-        $balik = StokMutasi::where('referensi_type', SuratJalan::class)
+        $balik = StokMutasi::where('referensi_type', 'surat_jalan')
             ->where('tipe', TipeMutasiStok::In->value)
             ->sole();
 
@@ -580,7 +583,7 @@ class SuratJalanTest extends TestCase
 
         $this->assertDatabaseHas('activity_log', [
             'aksi' => 'cancel',
-            'subjek_type' => SuratJalan::class,
+            'subjek_type' => 'surat_jalan',
             'subjek_id' => $dokumen->id,
         ]);
     }

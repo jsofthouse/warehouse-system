@@ -68,6 +68,7 @@
                             @if (auth()->user()->role->bisaKelolaMasterData())
                                 <td>
                                     <div class="btn-list flex-nowrap">
+                                        <x-riwayat-link :subjek="$item" />
                                         <a href="{{ route('master.item.edit', $item) }}" class="btn btn-icon btn-sm"
                                             title="Ubah">
                                             <i class="ti ti-pencil"></i>

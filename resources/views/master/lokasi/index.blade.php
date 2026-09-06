@@ -73,6 +73,7 @@
             @if (auth()->user()->role->bisaKelolaMasterData())
               <td>
                 <div class="btn-list flex-nowrap">
+                  <x-riwayat-link :subjek="$lokasi" />
                   <a href="{{ route('master.alokasi.show', $lokasi) }}" class="btn btn-icon btn-sm" title="Lihat alokasi">
                     <i class="ti ti-list-details"></i>
                   </a>

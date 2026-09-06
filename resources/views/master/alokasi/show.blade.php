@@ -3,6 +3,13 @@
 @section('title', 'Alokasi — '.$lokasi->nama_kodim)
 @section('pretitle', 'Master Data · Alokasi')
 
+@section('page-actions')
+  {{-- Subjek dipetakan ke model Lokasi, bukan AlokasiKebutuhan — satu aksi
+       AlokasiController::update() bisa mengubah alokasi banyak item sekaligus
+       untuk satu lokasi (docs/12-modul-activity-log.md §4.3). --}}
+  <x-riwayat-link :subjek="$lokasi" label="Riwayat" class="btn-outline-secondary" />
+@endsection
+
 @section('content')
 <div class="card">
   <div class="card-header">
