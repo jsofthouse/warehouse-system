@@ -29,7 +29,7 @@
                     </div>
                 @endif
 
-                <div class="col-md-3">
+                <div class="col-md-2">
                     <select name="lokasi_id" class="form-select">
                         <option value="">Semua lokasi tujuan</option>
                         @foreach ($daftarLokasi as $lokasi)
@@ -41,7 +41,7 @@
                     </select>
                 </div>
 
-                <div class="col-md-2">
+                <div class="col-md-1">
                     <select name="status" class="form-select">
                         <option value="">Semua status</option>
                         @foreach (App\Enums\StatusSuratJalan::cases() as $status)
@@ -53,12 +53,12 @@
                     </select>
                 </div>
 
-                <div class="col-md-2">
+                <div class="col-md-1">
                     <input type="date" name="dari" value="{{ $filter['dari'] ?? '' }}" class="form-control"
                         aria-label="Tanggal mulai">
                 </div>
 
-                <div class="col-md-2">
+                <div class="col-md-1">
                     <input type="date" name="sampai" value="{{ $filter['sampai'] ?? '' }}" class="form-control"
                         aria-label="Tanggal sampai">
                 </div>
