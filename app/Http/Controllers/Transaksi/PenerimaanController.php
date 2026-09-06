@@ -60,9 +60,9 @@ class PenerimaanController extends Controller
         $lintasGudang = $user->bisaAksesSemuaGudang();
         $cari = trim((string) ($filter['q'] ?? ''));
 
-        $penerimaans = Penerimaan::query()
+        $daftarPenerimaan = Penerimaan::query()
             ->with('gudang:id,nama,kode')
-            ->withSum('details as total_unit', 'jumlah')
+            ->withSum('detail as total_unit', 'jumlah')
             // Scoping keras dulu: operator_gudang & viewer tidak pernah bisa
             // melebar lewat query string, apa pun isi ?gudang_id=.
             ->when(! $lintasGudang, fn ($q) => $q->untukGudang((int) $user->gudang_id))
@@ -85,7 +85,7 @@ class PenerimaanController extends Controller
             ->withQueryString();
 
         return view('penerimaan.index', [
-            'penerimaans' => $penerimaans,
+            'daftarPenerimaan' => $daftarPenerimaan,
             'daftarGudang' => $lintasGudang ? $this->gudangAktif() : new EloquentCollection,
             'lintasGudang' => $lintasGudang,
             'filter' => $filter + ['q' => $cari],
@@ -101,7 +101,7 @@ class PenerimaanController extends Controller
 
         return view('penerimaan.create', [
             'penerimaan' => new Penerimaan(['tanggal' => now()->toDateString()]),
-            'items' => $this->itemAktif(),
+            'daftarItem' => $this->itemAktif(),
             'daftarGudang' => $this->pilihanGudang($user),
             'kunciGudang' => ! $user->bisaAksesSemuaGudang(),
         ]);
@@ -140,7 +140,7 @@ class PenerimaanController extends Controller
     {
         $this->authorize('view', $penerimaan);
 
-        $penerimaan->load(['details.item', 'gudang', 'pembuat', 'poster', 'pembatal']);
+        $penerimaan->load(['detail.item', 'gudang', 'pembuat', 'poster', 'pembatal']);
 
         return view('penerimaan.show', compact('penerimaan'));
     }
@@ -149,11 +149,11 @@ class PenerimaanController extends Controller
     {
         $this->authorize('update', $penerimaan);
 
-        $penerimaan->load('details.item');
+        $penerimaan->load('detail.item');
 
         return view('penerimaan.edit', [
             'penerimaan' => $penerimaan,
-            'items' => $this->itemAktif(),
+            'daftarItem' => $this->itemAktif(),
             'daftarGudang' => $this->pilihanGudang($request->user()),
             // Gudang dokumen tidak pernah pindah setelah dibuat, jadi terkunci
             // buat semua role di layar edit.
@@ -182,11 +182,11 @@ class PenerimaanController extends Controller
             // Baris detail diganti total (hapus lalu tulis ulang) — lebih mudah
             // dibaca dan tidak menyisakan baris yatim. Aman karena draft belum
             // pernah menulis mutasi stok.
-            $penerimaan->details()->delete();
+            $penerimaan->detail()->delete();
             $this->tulisUlangDetail($penerimaan, $data['detail'] ?? []);
         });
 
-        $penerimaan->refresh()->load('details');
+        $penerimaan->refresh()->load('detail');
 
         $this->catatAktivitas('update', $penerimaan, $dataLama, $this->ringkasan($penerimaan), 'Ubah draft penerimaan');
 
@@ -201,7 +201,7 @@ class PenerimaanController extends Controller
     {
         $this->authorize('posting', $penerimaan);
 
-        $penerimaan->load(['details.item', 'gudang']);
+        $penerimaan->load(['detail.item', 'gudang']);
 
         // Validasi diulang penuh di server. Yang dilihat operator di browser cuma
         // kenyamanan — form bisa dilewati, dan item bisa saja dinonaktifkan
@@ -231,7 +231,7 @@ class PenerimaanController extends Controller
                 'nomor_penerimaan',
             );
 
-            foreach ($penerimaan->details as $detail) {
+            foreach ($penerimaan->detail as $detail) {
                 StokMutasi::create([
                     'gudang_id' => $penerimaan->gudang_id,
                     'item_id' => $detail->item_id,
@@ -261,7 +261,7 @@ class PenerimaanController extends Controller
             return back()->with('error', 'Dokumen ini sudah diposting atau dibatalkan pengguna lain. Muat ulang halaman.');
         }
 
-        $penerimaan->refresh()->load('details');
+        $penerimaan->refresh()->load('detail');
 
         $this->catatAktivitas(
             'post',
@@ -281,7 +281,7 @@ class PenerimaanController extends Controller
     {
         $this->authorize('batalkan', $penerimaan);
 
-        $penerimaan->load(['details.item', 'gudang']);
+        $penerimaan->load(['detail.item', 'gudang']);
 
         return view('penerimaan.batalkan', compact('penerimaan'));
     }
@@ -295,7 +295,7 @@ class PenerimaanController extends Controller
     {
         $this->authorize('batalkan', $penerimaan);
 
-        $penerimaan->load(['details.item', 'gudang']);
+        $penerimaan->load(['detail.item', 'gudang']);
         $alasan = $request->validated()['alasan_pembatalan'];
         $dataLama = $this->ringkasan($penerimaan);
 
@@ -315,7 +315,7 @@ class PenerimaanController extends Controller
                 return $kekurangan;
             }
 
-            foreach ($penerimaan->details as $detail) {
+            foreach ($penerimaan->detail as $detail) {
                 StokMutasi::create([
                     'gudang_id' => $penerimaan->gudang_id,
                     'item_id' => $detail->item_id,
@@ -351,7 +351,7 @@ class PenerimaanController extends Controller
             );
         }
 
-        $penerimaan->refresh()->load('details');
+        $penerimaan->refresh()->load('detail');
 
         // Mutasi balik bertanggal dokumen asli, jadi snapshot stok_harian dari
         // tanggal itu ke depan perlu dihitung ulang. Listener-nya dibangun di
@@ -379,7 +379,7 @@ class PenerimaanController extends Controller
         // ("08-keamanan.md" §2.1) — jadi dicek di sini, bukan cuma di route.
         $this->authorize('cetak', $penerimaan);
 
-        $penerimaan->load(['details.item', 'gudang', 'pembuat', 'poster', 'pembatal']);
+        $penerimaan->load(['detail.item', 'gudang', 'pembuat', 'poster', 'pembatal']);
 
         $berkas = preg_replace('/[^A-Za-z0-9\-]/', '', (string) $penerimaan->nomor_penerimaan).'.pdf';
 
@@ -405,11 +405,11 @@ class PenerimaanController extends Controller
     /** @return string|null pesan penolakan, atau null kalau dokumen siap diposting */
     private function masalahSebelumPosting(Penerimaan $penerimaan): ?string
     {
-        if ($penerimaan->details->isEmpty()) {
+        if ($penerimaan->detail->isEmpty()) {
             return 'Penerimaan belum punya baris item. Tambahkan minimal satu item sebelum posting.';
         }
 
-        $nonaktif = $penerimaan->details
+        $nonaktif = $penerimaan->detail
             ->filter(fn ($detail) => ! ($detail->item?->is_active))
             ->map(fn ($detail) => $detail->item?->nama ?? "item #{$detail->item_id}");
 
@@ -417,13 +417,13 @@ class PenerimaanController extends Controller
             return 'Item berikut sudah dinonaktifkan di master data, hapus dulu barisnya: '.$nonaktif->implode(', ').'.';
         }
 
-        $itemIds = $penerimaan->details->pluck('item_id');
+        $itemIds = $penerimaan->detail->pluck('item_id');
 
         if ($itemIds->unique()->count() !== $itemIds->count()) {
             return 'Ada item yang muncul di lebih dari satu baris. Gabungkan jadi satu baris dulu.';
         }
 
-        if ($penerimaan->details->contains(fn ($detail) => $detail->jumlah < 1)) {
+        if ($penerimaan->detail->contains(fn ($detail) => $detail->jumlah < 1)) {
             return 'Ada baris dengan jumlah kurang dari 1.';
         }
 
@@ -444,14 +444,14 @@ class PenerimaanController extends Controller
     {
         $saldo = StokMutasi::query()
             ->where('gudang_id', $penerimaan->gudang_id)
-            ->whereIn('item_id', $penerimaan->details->pluck('item_id'))
+            ->whereIn('item_id', $penerimaan->detail->pluck('item_id'))
             ->groupBy('item_id')
             ->selectRaw('item_id, SUM(CASE WHEN tipe = ? THEN jumlah ELSE -jumlah END) as saldo', [TipeMutasiStok::In->value])
             ->pluck('saldo', 'item_id');
 
         $kekurangan = [];
 
-        foreach ($penerimaan->details as $detail) {
+        foreach ($penerimaan->detail as $detail) {
             $onHand = (int) ($saldo[$detail->item_id] ?? 0);
             $kurang = $detail->jumlah - $onHand;
 
@@ -473,7 +473,7 @@ class PenerimaanController extends Controller
     private function tulisUlangDetail(Penerimaan $penerimaan, array $detail): void
     {
         foreach ($detail as $baris) {
-            $penerimaan->details()->create([
+            $penerimaan->detail()->create([
                 'item_id' => $baris['item_id'],
                 'jumlah' => $baris['jumlah'],
                 'keterangan' => $baris['keterangan'] ?? null,
@@ -534,7 +534,7 @@ class PenerimaanController extends Controller
             'tanggal' => $penerimaan->tanggal?->toDateString(),
             'vendor_nama' => $penerimaan->vendor_nama,
             'status' => $penerimaan->status->value,
-            'jumlah_baris' => $penerimaan->details->count(),
+            'jumlah_baris' => $penerimaan->detail->count(),
             'total_unit' => $penerimaan->totalUnit(),
         ];
     }

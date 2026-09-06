@@ -58,7 +58,7 @@
           </tr>
         </thead>
         <tbody>
-          @foreach ($items as $item)
+          @foreach ($daftarItem as $item)
             <tr>
               <td><span class="badge bg-blue-lt">{{ $item->kode }}</span></td>
               <td>{{ $item->nama }}</td>

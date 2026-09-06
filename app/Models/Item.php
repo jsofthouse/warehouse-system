@@ -32,27 +32,27 @@ class Item extends Model
         'is_active' => 'boolean',
     ];
 
-    public function alokasiKebutuhans()
+    public function daftarAlokasiKebutuhan()
     {
         return $this->hasMany(AlokasiKebutuhan::class);
     }
 
-    public function penerimaanDetails()
+    public function daftarPenerimaanDetail()
     {
         return $this->hasMany(PenerimaanDetail::class);
     }
 
-    public function suratJalanDetails()
+    public function daftarSuratJalanDetail()
     {
         return $this->hasMany(SuratJalanDetail::class);
     }
 
-    public function stokMutasis()
+    public function daftarStokMutasi()
     {
         return $this->hasMany(StokMutasi::class);
     }
 
-    public function stokHarians()
+    public function daftarStokHarian()
     {
         return $this->hasMany(StokHarian::class);
     }

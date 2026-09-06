@@ -2,7 +2,7 @@
     // Baris awal: hasil input yang gagal validasi kalau ada, kalau tidak ya isi
     // dokumen yang sedang diedit.
     $barisDokumen = $penerimaan->exists
-        ? $penerimaan->details
+        ? $penerimaan->detail
             ->map(fn($d) => ['item_id' => $d->item_id, 'jumlah' => $d->jumlah, 'keterangan' => $d->keterangan])
             ->values()
             ->all()
@@ -10,7 +10,7 @@
 
     $barisAwal = array_values(old('detail', $barisDokumen));
 
-    $opsiItem = $items
+    $opsiItem = $daftarItem
         ->map(fn($i) => ['id' => $i->id, 'label' => $i->kode . ' — ' . $i->nama, 'satuan' => $i->satuan])
         ->values();
 @endphp

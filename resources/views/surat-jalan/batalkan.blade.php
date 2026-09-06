@@ -29,7 +29,7 @@
                                 </tr>
                             </thead>
                             <tbody>
-                                @foreach ($suratJalan->details as $detail)
+                                @foreach ($suratJalan->detail as $detail)
                                     <tr>
                                         <td>{{ $detail->item?->nama ?? "Item #{$detail->item_id}" }}</td>
                                         <td class="text-end">{{ number_format($detail->jumlah_kirim, 0, ',', '.') }}

@@ -33,7 +33,7 @@
         </tr>
       </thead>
       <tbody>
-        @forelse ($lokasis as $lokasi)
+        @forelse ($daftarLokasi as $lokasi)
           <tr>
             <td><span class="badge bg-blue-lt">{{ $lokasi->kode }}</span></td>
             <td>{{ $lokasi->nama_kodim }}</td>
@@ -59,7 +59,7 @@
   </div>
 
   <div class="card-footer d-flex align-items-center">
-    {{ $lokasis->links() }}
+    {{ $daftarLokasi->links() }}
   </div>
 </div>
 @endsection

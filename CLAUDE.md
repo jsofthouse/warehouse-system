@@ -196,8 +196,14 @@ contoh perhitungan ada di `docs/04-invoice-sewa-gudang.md`.
   apa adanya.
 - Nama kolom: `snake_case`, bahasa Indonesia mengikuti istilah domain klien
   (`jumlah_kirim`, `nomor_surat_jalan`, `alasan_pembatalan`)
-- Nama variabel PHP dan nama relasi Eloquent tidak ikut aturan tunggal di atas —
-  `$penerimaans`, `alokasiKebutuhans()` tetap wajar
+- **Nama fungsi dan variabel juga tidak boleh Indonesia + `-s`.** Kalau butuh
+  menyatakan koleksi, pakai awalan `daftar`: `$daftarPenerimaan`,
+  `daftarSuratJalan()`, `daftarAlokasiKebutuhan()` — bukan `$penerimaans` atau
+  `suratJalans()`. Ini berlaku juga untuk nama relasi Eloquent, yang secara
+  konvensi Laravel biasanya dijamakkan untuk `hasMany`.
+- Pengecualian: baris milik dokumen itu sendiri tetap tunggal tanpa `daftar` —
+  `$suratJalan->detail`, `$penerimaan->mutasi`. Kata yang memang Inggris boleh
+  dijamakkan wajar (`users()`, `$rows`).
 - Semua uang disimpan sebagai `DECIMAL`, tidak pernah `FLOAT`
 - Tarif, PPN, dan faktor volumetrik adalah **data**, bukan konstanta di kode
 - Semua tanggal disimpan sebagai `DATE`/`DATETIME`, zona waktu Asia/Jakarta

@@ -33,7 +33,7 @@ final class KetersediaanPengiriman
      */
     public static function untuk(int $gudangId, int $lokasiId): Collection
     {
-        $items = Item::query()
+        $daftarItem = Item::query()
             ->where('is_active', true)
             ->orderBy('kode')
             ->get(['id', 'kode', 'nama', 'satuan']);
@@ -45,7 +45,7 @@ final class KetersediaanPengiriman
         $sudahKirim = self::sudahTerkirim($lokasiId);
         $stok = self::stokGudang($gudangId);
 
-        return $items->mapWithKeys(function (Item $item) use ($alokasi, $sudahKirim, $stok) {
+        return $daftarItem->mapWithKeys(function (Item $item) use ($alokasi, $sudahKirim, $stok) {
             $jumlahAlokasi = (int) ($alokasi[$item->id] ?? 0);
             $jumlahKirim = (int) ($sudahKirim[$item->id] ?? 0);
             $sisa = max(0, $jumlahAlokasi - $jumlahKirim);

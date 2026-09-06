@@ -55,12 +55,12 @@ class SuratJalan extends Model
         return $this->belongsTo(Lokasi::class);
     }
 
-    public function details()
+    public function detail()
     {
         return $this->hasMany(SuratJalanDetail::class);
     }
 
-    public function mutasis()
+    public function mutasi()
     {
         return $this->morphMany(StokMutasi::class, 'referensi');
     }
@@ -94,6 +94,6 @@ class SuratJalan extends Model
 
     public function totalUnit(): int
     {
-        return (int) $this->details->sum('jumlah_kirim');
+        return (int) $this->detail->sum('jumlah_kirim');
     }
 }

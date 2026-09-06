@@ -26,12 +26,12 @@ class Lokasi extends Model
         'is_active' => 'boolean',
     ];
 
-    public function alokasiKebutuhans()
+    public function daftarAlokasiKebutuhan()
     {
         return $this->hasMany(AlokasiKebutuhan::class);
     }
 
-    public function suratJalans()
+    public function daftarSuratJalan()
     {
         return $this->hasMany(SuratJalan::class);
     }

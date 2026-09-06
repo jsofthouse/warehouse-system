@@ -21,7 +21,7 @@ class GudangController extends Controller
     {
         $q = trim((string) $request->query('q', ''));
 
-        $gudangs = Gudang::query()
+        $daftarGudang = Gudang::query()
             ->when($q !== '', function ($query) use ($q) {
                 $like = '%'.str_replace(['%', '_'], ['\\%', '\\_'], $q).'%';
                 $query->where(function ($w) use ($like) {
@@ -34,7 +34,7 @@ class GudangController extends Controller
             ->paginate(20)
             ->withQueryString();
 
-        return view('master.gudang.index', compact('gudangs', 'q'));
+        return view('master.gudang.index', compact('daftarGudang', 'q'));
     }
 
     public function create(): View

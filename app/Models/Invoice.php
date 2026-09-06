@@ -51,7 +51,7 @@ class Invoice extends Model
         return $this->belongsTo(Gudang::class);
     }
 
-    public function details()
+    public function detail()
     {
         return $this->hasMany(InvoiceDetail::class);
     }

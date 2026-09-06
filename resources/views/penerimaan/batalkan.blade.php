@@ -28,7 +28,7 @@
                                 </tr>
                             </thead>
                             <tbody>
-                                @foreach ($penerimaan->details as $detail)
+                                @foreach ($penerimaan->detail as $detail)
                                     <tr>
                                         <td>{{ $detail->item?->nama ?? "Item #{$detail->item_id}" }}</td>
                                         <td class="text-end">{{ number_format($detail->jumlah, 0, ',', '.') }}</td>

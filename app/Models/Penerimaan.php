@@ -46,12 +46,12 @@ class Penerimaan extends Model
         return $this->belongsTo(Gudang::class);
     }
 
-    public function details()
+    public function detail()
     {
         return $this->hasMany(PenerimaanDetail::class);
     }
 
-    public function mutasis()
+    public function mutasi()
     {
         return $this->morphMany(StokMutasi::class, 'referensi');
     }
@@ -79,6 +79,6 @@ class Penerimaan extends Model
 
     public function totalUnit(): int
     {
-        return (int) $this->details->sum('jumlah');
+        return (int) $this->detail->sum('jumlah');
     }
 }

@@ -23,7 +23,7 @@ class ItemController extends Controller
     {
         $q = trim((string) $request->query('q', ''));
 
-        $items = Item::query()
+        $daftarItem = Item::query()
             ->when($q !== '', function ($query) use ($q) {
                 $like = '%'.str_replace(['%', '_'], ['\\%', '\\_'], $q).'%';
                 $query->where(function ($w) use ($like) {
@@ -34,7 +34,7 @@ class ItemController extends Controller
             ->paginate(20)
             ->withQueryString();
 
-        return view('master.item.index', compact('items', 'q'));
+        return view('master.item.index', compact('daftarItem', 'q'));
     }
 
     public function create(): View

@@ -75,9 +75,9 @@ class SuratJalanController extends Controller
         $lintasGudang = $user->bisaAksesSemuaGudang();
         $cari = trim((string) ($filter['q'] ?? ''));
 
-        $suratJalans = SuratJalan::query()
+        $daftarSuratJalan = SuratJalan::query()
             ->with(['gudang:id,nama,kode', 'lokasi:id,kode,nama_kodim,kabupaten,provinsi'])
-            ->withSum('details as total_unit', 'jumlah_kirim')
+            ->withSum('detail as total_unit', 'jumlah_kirim')
             // Scoping keras dulu: operator_gudang & viewer tidak pernah bisa
             // melebar lewat query string, apa pun isi ?gudang_id=.
             ->when(! $lintasGudang, fn ($q) => $q->untukGudang((int) $user->gudang_id))
@@ -102,7 +102,7 @@ class SuratJalanController extends Controller
             ->withQueryString();
 
         return view('surat-jalan.index', [
-            'suratJalans' => $suratJalans,
+            'daftarSuratJalan' => $daftarSuratJalan,
             'daftarGudang' => $lintasGudang ? $this->gudangAktif() : new EloquentCollection,
             'daftarLokasi' => $this->lokasiAktif(),
             'lintasGudang' => $lintasGudang,
@@ -198,7 +198,7 @@ class SuratJalanController extends Controller
             return $suratJalan;
         });
 
-        $suratJalan->load('details');
+        $suratJalan->load('detail');
 
         $this->catatAktivitas('create', $suratJalan, null, $this->ringkasan($suratJalan), 'Buat draft surat jalan');
 
@@ -210,7 +210,7 @@ class SuratJalanController extends Controller
     {
         $this->authorize('view', $suratJalan);
 
-        $suratJalan->load(['details.item', 'gudang', 'lokasi', 'pembuat', 'poster', 'pembatal']);
+        $suratJalan->load(['detail.item', 'gudang', 'lokasi', 'pembuat', 'poster', 'pembatal']);
 
         return view('surat-jalan.show', [
             'suratJalan' => $suratJalan,
@@ -222,7 +222,7 @@ class SuratJalanController extends Controller
     {
         $this->authorize('update', $suratJalan);
 
-        $suratJalan->load('details.item');
+        $suratJalan->load('detail.item');
 
         return view('surat-jalan.edit', [
             'suratJalan' => $suratJalan,
@@ -231,7 +231,7 @@ class SuratJalanController extends Controller
             // Gudang dokumen tidak pernah pindah setelah dibuat, jadi terkunci
             // buat semua role di layar edit.
             'kunciGudang' => true,
-            'barisAwal' => $suratJalan->details
+            'barisAwal' => $suratJalan->detail
                 ->mapWithKeys(fn ($detail) => [$detail->item_id => (int) $detail->jumlah_kirim])
                 ->all(),
         ]);
@@ -258,11 +258,11 @@ class SuratJalanController extends Controller
             // Baris detail diganti total (hapus lalu tulis ulang) — lebih mudah
             // dibaca dan tidak menyisakan baris yatim. Aman karena draft belum
             // pernah menulis mutasi stok.
-            $suratJalan->details()->delete();
+            $suratJalan->detail()->delete();
             $this->tulisUlangDetail($suratJalan, $data['detail'] ?? []);
         });
 
-        $suratJalan->refresh()->load('details');
+        $suratJalan->refresh()->load('detail');
 
         $this->catatAktivitas('update', $suratJalan, $dataLama, $this->ringkasan($suratJalan), 'Ubah draft surat jalan');
 
@@ -277,7 +277,7 @@ class SuratJalanController extends Controller
     {
         $this->authorize('posting', $suratJalan);
 
-        $suratJalan->load(['details.item', 'gudang', 'lokasi']);
+        $suratJalan->load(['detail.item', 'gudang', 'lokasi']);
 
         // Validasi diulang penuh di server. Yang dilihat operator di browser cuma
         // kenyamanan — form bisa dilewati, dan item/alokasi/stok bisa saja berubah
@@ -322,7 +322,7 @@ class SuratJalanController extends Controller
                 'nomor_surat_jalan',
             );
 
-            foreach ($suratJalan->details as $detail) {
+            foreach ($suratJalan->detail as $detail) {
                 StokMutasi::create([
                     'gudang_id' => $suratJalan->gudang_id,
                     'item_id' => $detail->item_id,
@@ -356,7 +356,7 @@ class SuratJalanController extends Controller
             return back()->with('error', 'Posting ditolak — '.implode('; ', $hasil).'.');
         }
 
-        $suratJalan->refresh()->load('details');
+        $suratJalan->refresh()->load('detail');
 
         $this->catatAktivitas(
             'post',
@@ -376,7 +376,7 @@ class SuratJalanController extends Controller
     {
         $this->authorize('tandaiDiterima', $suratJalan);
 
-        $suratJalan->load(['details.item', 'gudang', 'lokasi']);
+        $suratJalan->load(['detail.item', 'gudang', 'lokasi']);
 
         return view('surat-jalan.tandai-diterima', compact('suratJalan'));
     }
@@ -417,7 +417,7 @@ class SuratJalanController extends Controller
             );
         }
 
-        $suratJalan->refresh()->load('details');
+        $suratJalan->refresh()->load('detail');
 
         $this->catatAktivitas(
             'terima',
@@ -438,7 +438,7 @@ class SuratJalanController extends Controller
     {
         $this->authorize('batalkan', $suratJalan);
 
-        $suratJalan->load(['details.item', 'gudang', 'lokasi']);
+        $suratJalan->load(['detail.item', 'gudang', 'lokasi']);
 
         return view('surat-jalan.batalkan', compact('suratJalan'));
     }
@@ -455,7 +455,7 @@ class SuratJalanController extends Controller
     {
         $this->authorize('batalkan', $suratJalan);
 
-        $suratJalan->load(['details.item', 'gudang', 'lokasi']);
+        $suratJalan->load(['detail.item', 'gudang', 'lokasi']);
         $alasan = $request->validated()['alasan_pembatalan'];
         $dataLama = $this->ringkasan($suratJalan);
 
@@ -468,7 +468,7 @@ class SuratJalanController extends Controller
                 return false;
             }
 
-            foreach ($suratJalan->details as $detail) {
+            foreach ($suratJalan->detail as $detail) {
                 StokMutasi::create([
                     'gudang_id' => $suratJalan->gudang_id,
                     'item_id' => $detail->item_id,
@@ -496,7 +496,7 @@ class SuratJalanController extends Controller
             return back()->with('error', 'Dokumen ini sudah dibatalkan atau ditandai diterima pengguna lain. Muat ulang halaman.');
         }
 
-        $suratJalan->refresh()->load('details');
+        $suratJalan->refresh()->load('detail');
 
         // Mutasi balik bertanggal dokumen asli, jadi snapshot stok_harian dari
         // tanggal itu ke depan perlu dihitung ulang. Listener-nya dibangun di
@@ -524,7 +524,7 @@ class SuratJalanController extends Controller
         // ("08-keamanan.md" §2.1) — jadi dicek di sini, bukan cuma di route.
         $this->authorize('cetak', $suratJalan);
 
-        $suratJalan->load(['details.item', 'gudang', 'lokasi', 'pembuat', 'poster', 'pembatal']);
+        $suratJalan->load(['detail.item', 'gudang', 'lokasi', 'pembuat', 'poster', 'pembatal']);
 
         $berkas = preg_replace(
             '/[^A-Za-z0-9\-]/',
@@ -543,11 +543,11 @@ class SuratJalanController extends Controller
     /** @return string|null pesan penolakan, atau null kalau dokumen siap diposting */
     private function masalahSebelumPosting(SuratJalan $suratJalan): ?string
     {
-        if ($suratJalan->details->isEmpty()) {
+        if ($suratJalan->detail->isEmpty()) {
             return 'Surat jalan belum punya baris item. Isi minimal satu item sebelum posting.';
         }
 
-        $nonaktif = $suratJalan->details
+        $nonaktif = $suratJalan->detail
             ->filter(fn ($detail) => ! ($detail->item?->is_active))
             ->map(fn ($detail) => $detail->item?->nama ?? "item #{$detail->item_id}");
 
@@ -555,13 +555,13 @@ class SuratJalanController extends Controller
             return 'Item berikut sudah dinonaktifkan di master data, hapus dulu barisnya: '.$nonaktif->implode(', ').'.';
         }
 
-        $itemIds = $suratJalan->details->pluck('item_id');
+        $itemIds = $suratJalan->detail->pluck('item_id');
 
         if ($itemIds->unique()->count() !== $itemIds->count()) {
             return 'Ada item yang muncul di lebih dari satu baris. Gabungkan jadi satu baris dulu.';
         }
 
-        if ($suratJalan->details->contains(fn ($detail) => $detail->jumlah_kirim < 1)) {
+        if ($suratJalan->detail->contains(fn ($detail) => $detail->jumlah_kirim < 1)) {
             return 'Ada baris dengan jumlah kirim kurang dari 1.';
         }
 
@@ -591,7 +591,7 @@ class SuratJalanController extends Controller
 
         $pelanggaran = [];
 
-        foreach ($suratJalan->details as $detail) {
+        foreach ($suratJalan->detail as $detail) {
             $angka = $ketersediaan->get($detail->item_id);
             $nama = $detail->item?->nama ?? "item #{$detail->item_id}";
 
@@ -655,7 +655,7 @@ class SuratJalanController extends Controller
     private function tulisUlangDetail(SuratJalan $suratJalan, array $detail): void
     {
         foreach ($detail as $baris) {
-            $suratJalan->details()->create([
+            $suratJalan->detail()->create([
                 'item_id' => $baris['item_id'],
                 'jumlah_kirim' => $baris['jumlah_kirim'],
             ]);
@@ -717,7 +717,7 @@ class SuratJalanController extends Controller
             'lokasi_id' => $suratJalan->lokasi_id,
             'tanggal' => $suratJalan->tanggal?->toDateString(),
             'status' => $suratJalan->status->value,
-            'jumlah_baris' => $suratJalan->details->count(),
+            'jumlah_baris' => $suratJalan->detail->count(),
             'total_unit' => $suratJalan->totalUnit(),
         ];
     }

@@ -80,7 +80,7 @@
                     </tr>
                 </thead>
                 <tbody>
-                    @forelse ($penerimaans as $penerimaan)
+                    @forelse ($daftarPenerimaan as $penerimaan)
                         <tr>
                             <td>
                                 @if ($penerimaan->nomor_penerimaan)
@@ -127,7 +127,7 @@
         </div>
 
         <div class="card-footer d-flex align-items-center">
-            {{ $penerimaans->links() }}
+            {{ $daftarPenerimaan->links() }}
         </div>
     </div>
 @endsection

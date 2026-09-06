@@ -35,7 +35,7 @@
         </tr>
       </thead>
       <tbody>
-        @forelse ($gudangs as $gudang)
+        @forelse ($daftarGudang as $gudang)
           <tr>
             <td><span class="badge bg-blue-lt">{{ $gudang->kode }}</span></td>
             <td>{{ $gudang->nama }}</td>
@@ -73,7 +73,7 @@
   </div>
 
   <div class="card-footer d-flex align-items-center">
-    {{ $gudangs->links() }}
+    {{ $daftarGudang->links() }}
   </div>
 </div>
 @endsection

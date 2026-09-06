@@ -304,7 +304,7 @@
                     </tr>
                 </thead>
                 <tbody>
-                    @foreach ($suratJalan->details as $baris => $detail)
+                    @foreach ($suratJalan->detail as $baris => $detail)
                         <tr>
                             <td class="tengah">{{ $baris + 1 }}</td>
                             <td>{{ $detail->item?->nama ?? 'Item tidak ditemukan' }}</td>

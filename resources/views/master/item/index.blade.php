@@ -38,7 +38,7 @@
                     </tr>
                 </thead>
                 <tbody>
-                    @forelse ($items as $item)
+                    @forelse ($daftarItem as $item)
                         <tr>
                             <td><span class="badge bg-blue-lt">{{ $item->kode }}</span></td>
                             <td>{{ $item->nama }}</td>
@@ -94,7 +94,7 @@
         </div>
 
         <div class="card-footer d-flex align-items-center">
-            {{ $items->links() }}
+            {{ $daftarItem->links() }}
         </div>
     </div>
 @endsection

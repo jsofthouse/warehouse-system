@@ -146,7 +146,7 @@
                             </tr>
                         </thead>
                         <tbody>
-                            @forelse ($suratJalan->details as $detail)
+                            @forelse ($suratJalan->detail as $detail)
                                 <tr>
                                     <td><span class="badge bg-blue-lt">{{ $detail->item?->kode ?? '—' }}</span></td>
                                     <td>{{ $detail->item?->nama ?? 'Item terhapus' }}</td>

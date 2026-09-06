@@ -770,7 +770,7 @@ class SuratJalanTest extends TestCase
         ], $atribut));
 
         foreach ($detail as $itemId => $jumlah) {
-            $suratJalan->details()->create(['item_id' => $itemId, 'jumlah_kirim' => $jumlah]);
+            $suratJalan->detail()->create(['item_id' => $itemId, 'jumlah_kirim' => $jumlah]);
         }
 
         return $suratJalan;

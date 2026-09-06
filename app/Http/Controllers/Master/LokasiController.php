@@ -36,7 +36,7 @@ class LokasiController extends Controller
 
         $daftarProvinsi = Lokasi::query()->select('provinsi')->distinct()->orderBy('provinsi')->pluck('provinsi');
 
-        $lokasis = Lokasi::query()
+        $daftarLokasi = Lokasi::query()
             ->when($q !== '', function ($query) use ($q) {
                 $like = '%'.str_replace(['%', '_'], ['\\%', '\\_'], $q).'%';
                 $query->where(function ($w) use ($like) {
@@ -52,7 +52,7 @@ class LokasiController extends Controller
             ->paginate(20)
             ->withQueryString();
 
-        return view('master.lokasi.index', compact('lokasis', 'q', 'provinsi', 'daftarProvinsi'));
+        return view('master.lokasi.index', compact('daftarLokasi', 'q', 'provinsi', 'daftarProvinsi'));
     }
 
     public function create(): View

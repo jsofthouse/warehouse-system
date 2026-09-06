@@ -22,9 +22,9 @@ class AlokasiController extends Controller
     {
         $q = trim((string) $request->query('q', ''));
 
-        $lokasis = Lokasi::query()
-            ->withSum('alokasiKebutuhans as total_alokasi', 'jumlah_kebutuhan')
-            ->withCount('alokasiKebutuhans as jumlah_item_diatur')
+        $daftarLokasi = Lokasi::query()
+            ->withSum('daftarAlokasiKebutuhan as total_alokasi', 'jumlah_kebutuhan')
+            ->withCount('daftarAlokasiKebutuhan as jumlah_item_diatur')
             ->when($q !== '', function ($query) use ($q) {
                 $like = '%'.str_replace(['%', '_'], ['\\%', '\\_'], $q).'%';
                 $query->where(function ($w) use ($like) {
@@ -37,15 +37,15 @@ class AlokasiController extends Controller
 
         $totalItemAktif = Item::where('is_active', true)->count();
 
-        return view('master.alokasi.index', compact('lokasis', 'q', 'totalItemAktif'));
+        return view('master.alokasi.index', compact('daftarLokasi', 'q', 'totalItemAktif'));
     }
 
     public function show(Lokasi $lokasi): View
     {
-        $items = Item::where('is_active', true)->orderBy('kode')->get();
-        $alokasi = $lokasi->alokasiKebutuhans()->pluck('jumlah_kebutuhan', 'item_id');
+        $daftarItem = Item::where('is_active', true)->orderBy('kode')->get();
+        $alokasi = $lokasi->daftarAlokasiKebutuhan()->pluck('jumlah_kebutuhan', 'item_id');
 
-        return view('master.alokasi.show', compact('lokasi', 'items', 'alokasi'));
+        return view('master.alokasi.show', compact('lokasi', 'daftarItem', 'alokasi'));
     }
 
     public function update(AlokasiUpdateRequest $request, Lokasi $lokasi): RedirectResponse
@@ -56,7 +56,7 @@ class AlokasiController extends Controller
             array_flip($itemIdAktif)
         );
 
-        $dataLama = $lokasi->alokasiKebutuhans()->pluck('jumlah_kebutuhan', 'item_id')->toArray();
+        $dataLama = $lokasi->daftarAlokasiKebutuhan()->pluck('jumlah_kebutuhan', 'item_id')->toArray();
 
         DB::transaction(function () use ($lokasi, $jumlah) {
             foreach ($jumlah as $itemId => $qty) {
@@ -67,7 +67,7 @@ class AlokasiController extends Controller
             }
         });
 
-        $dataBaru = $lokasi->alokasiKebutuhans()->pluck('jumlah_kebutuhan', 'item_id')->toArray();
+        $dataBaru = $lokasi->daftarAlokasiKebutuhan()->pluck('jumlah_kebutuhan', 'item_id')->toArray();
 
         $this->catatAktivitas('update', $lokasi, $dataLama, $dataBaru, 'Ubah alokasi kebutuhan per item');
 
@@ -77,10 +77,10 @@ class AlokasiController extends Controller
 
     public function setMassalForm(): View
     {
-        $items = Item::where('is_active', true)->orderBy('kode')->get();
+        $daftarItem = Item::where('is_active', true)->orderBy('kode')->get();
         $jumlahLokasi = Lokasi::count();
 
-        return view('master.alokasi.set-massal', compact('items', 'jumlahLokasi'));
+        return view('master.alokasi.set-massal', compact('daftarItem', 'jumlahLokasi'));
     }
 
     public function setMassal(AlokasiSetMassalRequest $request): RedirectResponse

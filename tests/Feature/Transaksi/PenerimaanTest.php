@@ -168,7 +168,7 @@ class PenerimaanTest extends TestCase
         $item = $this->item('ALK-01', 'Traktor Tangan');
 
         $dokumen = $this->draft($gudang, $operator);
-        $dokumen->details()->create(['item_id' => $item->id, 'jumlah' => 4]);
+        $dokumen->detail()->create(['item_id' => $item->id, 'jumlah' => 4]);
 
         $item->update(['is_active' => false]);
 
@@ -188,7 +188,7 @@ class PenerimaanTest extends TestCase
         $item = $this->item('ALK-01', 'Traktor Tangan');
 
         $dokumen = $this->draft($gudang, $operator, ['tanggal' => now()->subDays(3)->toDateString()]);
-        $dokumen->details()->create(['item_id' => $item->id, 'jumlah' => 7]);
+        $dokumen->detail()->create(['item_id' => $item->id, 'jumlah' => 7]);
 
         $this->actingAs($operator)
             ->post(route('penerimaan.posting', $dokumen))
@@ -232,7 +232,7 @@ class PenerimaanTest extends TestCase
 
         foreach ([$semarang, $semarang, $jakarta] as $gudang) {
             $dokumen = $this->draft($gudang, $pusat);
-            $dokumen->details()->create(['item_id' => $item->id, 'jumlah' => 1]);
+            $dokumen->detail()->create(['item_id' => $item->id, 'jumlah' => 1]);
 
             $this->post(route('penerimaan.posting', $dokumen));
 
@@ -257,7 +257,7 @@ class PenerimaanTest extends TestCase
         $item = $this->item('ALK-01', 'Traktor Tangan');
 
         $dokumen = $this->draft($gudang, $operator);
-        $dokumen->details()->create(['item_id' => $item->id, 'jumlah' => 2]);
+        $dokumen->detail()->create(['item_id' => $item->id, 'jumlah' => 2]);
 
         $this->actingAs($operator)->post(route('penerimaan.posting', $dokumen));
 
@@ -276,7 +276,7 @@ class PenerimaanTest extends TestCase
         $item = $this->item('ALK-01', 'Traktor Tangan');
 
         $dokumen = $this->draft($gudang, $operator);
-        $dokumen->details()->create(['item_id' => $item->id, 'jumlah' => 2]);
+        $dokumen->detail()->create(['item_id' => $item->id, 'jumlah' => 2]);
         $this->actingAs($operator)->post(route('penerimaan.posting', $dokumen));
 
         $this->actingAs($operator)
@@ -294,7 +294,7 @@ class PenerimaanTest extends TestCase
         $item = $this->item('ALK-01', 'Traktor Tangan');
 
         $dokumen = $this->draft($gudang, $operator);
-        $dokumen->details()->create(['item_id' => $item->id, 'jumlah' => 5]);
+        $dokumen->detail()->create(['item_id' => $item->id, 'jumlah' => 5]);
         $this->actingAs($operator)->post(route('penerimaan.posting', $dokumen));
 
         // 4 unit terlanjur keluar (anggap lewat surat jalan) — sisa 1.
@@ -336,7 +336,7 @@ class PenerimaanTest extends TestCase
         $item = $this->item('ALK-01', 'Traktor Tangan');
 
         $dokumen = $this->draft($gudang, $operator, ['tanggal' => now()->subDays(2)->toDateString()]);
-        $dokumen->details()->create(['item_id' => $item->id, 'jumlah' => 5]);
+        $dokumen->detail()->create(['item_id' => $item->id, 'jumlah' => 5]);
         $this->actingAs($operator)->post(route('penerimaan.posting', $dokumen));
 
         $nomor = $dokumen->refresh()->nomor_penerimaan;
@@ -386,7 +386,7 @@ class PenerimaanTest extends TestCase
         $item = $this->item('ALK-01', 'Traktor Tangan');
 
         $dokumen = $this->draft($gudang, $operator);
-        $dokumen->details()->create(['item_id' => $item->id, 'jumlah' => 1]);
+        $dokumen->detail()->create(['item_id' => $item->id, 'jumlah' => 1]);
         $this->actingAs($operator)->post(route('penerimaan.posting', $dokumen));
 
         $this->actingAs($pusat)
@@ -406,7 +406,7 @@ class PenerimaanTest extends TestCase
         $item = $this->item('ALK-01', 'Traktor Tangan');
 
         $dokumen = $this->draft($gudang, $operator);
-        $dokumen->details()->create(['item_id' => $item->id, 'jumlah' => 1]);
+        $dokumen->detail()->create(['item_id' => $item->id, 'jumlah' => 1]);
 
         $this->actingAs($operator)->get(route('penerimaan.cetak', $dokumen))->assertForbidden();
 
@@ -428,7 +428,7 @@ class PenerimaanTest extends TestCase
         $item = $this->item('ALK-01', 'Traktor Tangan');
 
         $dokumen = $this->draft($gudang, $operator);
-        $dokumen->details()->create(['item_id' => $item->id, 'jumlah' => 3]);
+        $dokumen->detail()->create(['item_id' => $item->id, 'jumlah' => 3]);
 
         $this->actingAs($operator);
         $this->get(route('penerimaan.index'))->assertOk();

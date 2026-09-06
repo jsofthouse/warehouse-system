@@ -41,32 +41,32 @@ class Gudang extends Model
         return $this->hasMany(User::class);
     }
 
-    public function tarifSewas()
+    public function daftarTarifSewa()
     {
         return $this->hasMany(TarifSewa::class);
     }
 
-    public function penerimaans()
+    public function daftarPenerimaan()
     {
         return $this->hasMany(Penerimaan::class);
     }
 
-    public function suratJalans()
+    public function daftarSuratJalan()
     {
         return $this->hasMany(SuratJalan::class);
     }
 
-    public function stokMutasis()
+    public function daftarStokMutasi()
     {
         return $this->hasMany(StokMutasi::class);
     }
 
-    public function stokHarians()
+    public function daftarStokHarian()
     {
         return $this->hasMany(StokHarian::class);
     }
 
-    public function invoices()
+    public function daftarInvoice()
     {
         return $this->hasMany(Invoice::class);
     }

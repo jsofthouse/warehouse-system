@@ -94,7 +94,7 @@
                     </tr>
                 </thead>
                 <tbody>
-                    @forelse ($suratJalans as $suratJalan)
+                    @forelse ($daftarSuratJalan as $suratJalan)
                         <tr>
                             <td>
                                 @if ($suratJalan->nomor_surat_jalan)
@@ -152,7 +152,7 @@
         </div>
 
         <div class="card-footer d-flex align-items-center">
-            {{ $suratJalans->links() }}
+            {{ $daftarSuratJalan->links() }}
         </div>
     </div>
 @endsection
