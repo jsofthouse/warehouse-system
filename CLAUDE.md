@@ -28,7 +28,7 @@ Tiga keluaran utama sistem:
 
 ## 2. Status
 
-Terakhir disegarkan 6 September 2026 (sore — Kartu Stok & Stok Harian ditambahkan).
+Terakhir disegarkan 6 September 2026 (malam — dokumen desain Activity Log ditambahkan, plus perbaikan tampilan paginasi global).
 
 | Aspek | Status |
 |---|---|
@@ -50,6 +50,7 @@ Terakhir disegarkan 6 September 2026 (sore — Kartu Stok & Stok Harian ditambah
 | Surat Jalan | Jadi — draft, posting, tandai diterima, pembatalan, cetak tiga rangkap |
 | Kartu Stok & Stok Harian | Jadi — ringkasan stok on-hand, riwayat mutasi berpaginasi, snapshot harian terjadwal + hitung ulang manual. Sempat ada bug (mismatch format tanggal di `updateOrCreate`, sudah di-fix commit `52900cd`) — **6/6 test hijau dikonfirmasi Jo** |
 | Invoice Sewa Gudang | **Belum** — terhalang data berat barang |
+| Activity Log | **Belum dieksekusi** — dokumen desain siap (`docs/12-modul-activity-log.md`), enam keputusan sudah dikonfirmasi Jo lewat brainstorming (login/login gagal, akses Super Admin saja, filter lengkap, `paginate()`, integrasi link "Riwayat" ke dokumen). Menunggu review dokumen sebelum eksekusi. |
 | Laporan (distribusi, biaya sewa) | **Belum** |
 
 Dua hal yang menggantung dan sudah diketahui:
@@ -182,6 +183,7 @@ contoh perhitungan ada di `docs/04-invoice-sewa-gudang.md`.
 | `docs/09-modul-barang-masuk.md` | Rancangan detail modul barang masuk — **sudah dieksekusi**; dokumennya sendiri masih bertanda "siap eksekusi" dan belum punya catatan eksekusi. Juga mencatat perubahan dari `02`/`03`. |
 | `docs/10-modul-surat-jalan.md` | Rancangan detail modul surat jalan — **sudah dieksekusi**; hasil eksekusi dan tiap penyimpangan dari rencana ada di §12. Juga mencatat perubahan dari `02`/`03`/`05`. |
 | `docs/11-modul-kartu-stok-dan-stok-harian.md` | Rancangan detail Kartu Stok & Stok Harian — **sudah dieksekusi**; catatan eksekusi dan status test ada di §11. Prasyarat teknis Modul Invoice (§6.2 dokumen invoice). |
+| `docs/12-modul-activity-log.md` | Rancangan detail Activity Log — **siap eksekusi, belum dieksekusi**. Melengkapi kewajiban audit login/login gagal di `03`/`08` dan celah matriks akses di `01`. |
 | `data/item.csv` | Master 17 item, siap jadi seeder |
 | `data/lokasi.csv` | Master lokasi tujuan, siap jadi seeder |
 
