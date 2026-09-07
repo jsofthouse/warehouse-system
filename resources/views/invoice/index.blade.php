@@ -1,20 +1,15 @@
-{{--
-    Skeleton — belum ada tombol "Buat Invoice". Mesin hitung invoice sesungguhnya
-    masih terhalang keputusan arsitektur (a) Agregat vs (b) Per-batch/FIFO yang
-    belum diputuskan tim internal, lihat "04-invoice-sewa-gudang.md" §0.
---}}
 @extends('layouts.app')
 
 @section('title', 'Invoice Sewa Gudang')
 @section('pretitle', 'Transaksi')
 
-@section('content')
-<div class="alert alert-info">
-  <strong>Modul ini masih skeleton.</strong> Mesin hitung invoice (buat, posting, cetak)
-  belum dibangun — masih menunggu keputusan cara hitung saat barang keluar (agregat
-  vs per-batch/FIFO). Lihat <code>docs/04-invoice-sewa-gudang.md</code> §0.
-</div>
+@section('page-actions')
+  <a href="{{ route('invoice.pilih') }}" class="btn btn-primary">
+    <i class="ti ti-plus me-1"></i> Buat Invoice
+  </a>
+@endsection
 
+@section('content')
 <div class="card">
   <div class="card-header">
     <form method="GET" class="d-flex gap-2 w-100">
@@ -33,6 +28,7 @@
         <tr>
           <th>Nomor Invoice</th>
           <th>Gudang</th>
+          <th>Surat Jalan</th>
           <th>Periode</th>
           <th class="text-end">Total</th>
           <th>Status</th>
@@ -44,17 +40,22 @@
           <tr>
             <td>{{ $invoice->nomor_invoice ?? '(draft)' }}</td>
             <td>{{ $invoice->gudang->nama }}</td>
+            <td>{{ $invoice->suratJalan?->nomor_surat_jalan ?? '—' }}</td>
             <td>
               {{ $invoice->periode_mulai->format('d/m/Y') }}
               &ndash;
               {{ $invoice->periode_selesai->format('d/m/Y') }}
             </td>
             <td class="text-end">Rp {{ number_format($invoice->total, 0, ',', '.') }}</td>
-            <td>{{ $invoice->status->value }}</td>
-            <td></td>
+            <td><span class="badge {{ $invoice->status->badge() }}">{{ $invoice->status->label() }}</span></td>
+            <td>
+              <a href="{{ route('invoice.show', $invoice) }}" class="btn btn-icon btn-sm" title="Detail">
+                <i class="ti ti-eye"></i>
+              </a>
+            </td>
           </tr>
         @empty
-          <tr><td colspan="6" class="text-center text-secondary py-4">Belum ada invoice.</td></tr>
+          <tr><td colspan="7" class="text-center text-secondary py-4">Belum ada invoice.</td></tr>
         @endforelse
       </tbody>
     </table>

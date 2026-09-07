@@ -17,8 +17,9 @@ class TarifSewaController extends Controller
     use LogsActivity;
 
     private const KOLOM_LOGGED = [
-        'gudang_id', 'basis', 'tarif_per_satuan_per_hari', 'faktor_volumetrik_kg_per_m3',
-        'ppn_persen', 'min_hari_simpan', 'pembulatan_rupiah', 'berlaku_mulai', 'berlaku_sampai',
+        'gudang_id', 'basis', 'harga_jual_per_satuan_per_hari', 'harga_beli_per_satuan_per_hari',
+        'faktor_volumetrik_kg_per_m3', 'ppn_persen', 'min_hari_simpan', 'pembulatan_rupiah',
+        'berlaku_mulai', 'berlaku_sampai',
     ];
 
     public function index(Request $request): View

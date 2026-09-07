@@ -19,8 +19,10 @@ class InvoiceDetail extends Model
         'total_unit_hari',
         'satuan_per_unit',
         'total_satuan_hari',
-        'tarif_per_satuan_per_hari',
+        'harga_jual_per_satuan_per_hari',
+        'harga_beli_per_satuan_per_hari',
         'subtotal',
+        'subtotal_pokok',
     ];
 
     protected $casts = [
@@ -28,8 +30,12 @@ class InvoiceDetail extends Model
         'total_unit_hari' => 'decimal:2',
         'satuan_per_unit' => 'decimal:4',
         'total_satuan_hari' => 'decimal:4',
-        'tarif_per_satuan_per_hari' => 'decimal:2',
+        'harga_jual_per_satuan_per_hari' => 'decimal:2',
+        'harga_beli_per_satuan_per_hari' => 'decimal:2',
         'subtotal' => 'decimal:2',
+        // Biaya pokok internal (cost, dari harga_beli) — cuma buat laporan
+        // margin, tidak pernah tampil di invoice cetak.
+        'subtotal_pokok' => 'decimal:2',
     ];
 
     public function invoice()

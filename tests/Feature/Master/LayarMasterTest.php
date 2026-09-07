@@ -121,7 +121,8 @@ class LayarMasterTest extends TestCase
 
         TarifSewa::firstOrCreate(['gudang_id' => $gudang->id, 'berlaku_mulai' => '2026-01-01'], [
             'basis' => BasisTarif::KgAktual,
-            'tarif_per_satuan_per_hari' => 150,
+            'harga_jual_per_satuan_per_hari' => 150,
+            'harga_beli_per_satuan_per_hari' => 100,
             'faktor_volumetrik_kg_per_m3' => 250,
             'ppn_persen' => 11,
             'min_hari_simpan' => 0,

@@ -16,7 +16,8 @@ class TarifSewa extends Model
     protected $fillable = [
         'gudang_id',
         'basis',
-        'tarif_per_satuan_per_hari',
+        'harga_jual_per_satuan_per_hari',
+        'harga_beli_per_satuan_per_hari',
         'faktor_volumetrik_kg_per_m3',
         'ppn_persen',
         'min_hari_simpan',
@@ -27,7 +28,8 @@ class TarifSewa extends Model
 
     protected $casts = [
         'basis' => BasisTarif::class,
-        'tarif_per_satuan_per_hari' => 'decimal:2',
+        'harga_jual_per_satuan_per_hari' => 'decimal:2',
+        'harga_beli_per_satuan_per_hari' => 'decimal:2',
         'faktor_volumetrik_kg_per_m3' => 'decimal:2',
         'ppn_persen' => 'decimal:2',
         'min_hari_simpan' => 'integer',

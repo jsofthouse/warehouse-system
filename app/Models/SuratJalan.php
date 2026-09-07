@@ -65,6 +65,12 @@ class SuratJalan extends Model
         return $this->morphMany(StokMutasi::class, 'referensi');
     }
 
+    /** Satu surat jalan cuma bisa py satu invoice ("04-invoice-sewa-gudang.md" §0). */
+    public function invoice()
+    {
+        return $this->hasOne(Invoice::class);
+    }
+
     public function pembuat()
     {
         return $this->belongsTo(User::class, 'created_by');

@@ -30,4 +30,10 @@ class SuratJalanDetail extends Model
     {
         return $this->belongsTo(Item::class);
     }
+
+    /** Baris alokasi FIFO batch mana saja yang dipakai buat baris ini (§3a dokumen invoice). */
+    public function daftarAlokasiBatchKeluar()
+    {
+        return $this->hasMany(AlokasiBatchKeluar::class);
+    }
 }

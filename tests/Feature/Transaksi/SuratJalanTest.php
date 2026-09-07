@@ -2,6 +2,7 @@
 
 namespace Tests\Feature\Transaksi;
 
+use App\Enums\StatusPenerimaan;
 use App\Enums\StatusSuratJalan;
 use App\Enums\TipeMutasiStok;
 use App\Enums\UserRole;
@@ -10,6 +11,7 @@ use App\Models\AlokasiKebutuhan;
 use App\Models\Gudang;
 use App\Models\Item;
 use App\Models\Lokasi;
+use App\Models\Penerimaan;
 use App\Models\StokMutasi;
 use App\Models\SuratJalan;
 use App\Models\User;
@@ -740,15 +742,41 @@ class SuratJalanTest extends TestCase
         ]);
     }
 
-    /** Isi stok awal langsung ke ledger, tanpa lewat modul Barang Masuk. */
+    /**
+     * Isi stok awal buat pengujian. Sejak alokasi FIFO ada
+     * ("04-invoice-sewa-gudang.md" §3a), surat jalan cuma bisa menarik stok
+     * dari batch `penerimaan_detail` yang beneran posted — jadi ini bikin
+     * Penerimaan ter-posting beneran, bukan cuma nulis mutasi ledger telanjang
+     * seperti sebelumnya.
+     */
     private function stokMasuk(Gudang $gudang, Item $item, int $jumlah, User $oleh): StokMutasi
     {
+        $tanggal = now()->subMonth()->toDateString();
+
+        $penerimaan = Penerimaan::create([
+            'gudang_id' => $gudang->id,
+            'tanggal' => $tanggal,
+            'vendor_nama' => 'Vendor Uji',
+            'created_by' => $oleh->id,
+        ]);
+
+        $penerimaan->detail()->create(['item_id' => $item->id, 'jumlah' => $jumlah]);
+
+        $penerimaan->forceFill([
+            'nomor_penerimaan' => 'BM-TEST-'.$penerimaan->id,
+            'status' => StatusPenerimaan::Posted,
+            'posted_by' => $oleh->id,
+            'posted_at' => now(),
+        ])->save();
+
         return StokMutasi::create([
             'gudang_id' => $gudang->id,
             'item_id' => $item->id,
-            'tanggal' => now()->subMonth()->toDateString(),
+            'tanggal' => $tanggal,
             'tipe' => TipeMutasiStok::In,
             'jumlah' => $jumlah,
+            'referensi_type' => $penerimaan->getMorphClass(),
+            'referensi_id' => $penerimaan->id,
             'keterangan' => 'Stok awal untuk pengujian',
             'created_by' => $oleh->id,
         ]);

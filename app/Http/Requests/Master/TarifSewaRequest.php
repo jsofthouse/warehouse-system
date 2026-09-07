@@ -20,7 +20,8 @@ class TarifSewaRequest extends FormRequest
         return [
             'gudang_id' => ['required', 'exists:gudang,id'],
             'basis' => ['required', Rule::enum(BasisTarif::class)],
-            'tarif_per_satuan_per_hari' => ['required', 'numeric', 'min:0', 'max:999999999999.99'],
+            'harga_jual_per_satuan_per_hari' => ['required', 'numeric', 'min:0', 'max:999999999999.99'],
+            'harga_beli_per_satuan_per_hari' => ['required', 'numeric', 'min:0', 'max:999999999999.99'],
             'faktor_volumetrik_kg_per_m3' => ['nullable', 'numeric', 'min:0.01', 'max:99999999.99'],
             'ppn_persen' => ['nullable', 'numeric', 'min:0', 'max:100'],
             'min_hari_simpan' => ['nullable', 'integer', 'min:0'],

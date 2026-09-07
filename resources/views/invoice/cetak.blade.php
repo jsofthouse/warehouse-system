@@ -8,12 +8,12 @@
     (lihat "04-invoice-sewa-gudang.md" §0 keputusan #3, tidak ada status
     pembayaran di sistem ini).
 
-    Identitas "Kepada" (pihak tertagih) masih placeholder murni — belum ada
-    relasi ke tabel pihak_tertagih, lihat "04-invoice-sewa-gudang.md" §10.
+    Identitas "Kepada" (pihak tertagih) sekarang snapshot kolom langsung di
+    invoice (nama_tertagih/alamat_tertagih/npwp_tertagih), diisi manual per
+    invoice — lihat "04-invoice-sewa-gudang.md" §10.
 
-    Rincian per item ($invoice->detail) kemungkinan besar masih kosong sampai
-    mesin hitung invoice sungguhan dibangun — lihat §0 blocker (a)/(b). Template
-    ini cuma menyiapkan layoutnya.
+    harga_beli_per_satuan_per_hari SENGAJA tidak pernah dibaca di sini — cost
+    internal buat laporan margin, bukan buat invoice yang dicetak ke klien.
 --}}
 @php
     $bulanIndonesia = [
@@ -35,7 +35,7 @@
         default => 'kg',
     };
 
-    $tarifContoh = $invoice->detail->first()?->tarif_per_satuan_per_hari;
+    $tarifContoh = $invoice->detail->first()?->harga_jual_per_satuan_per_hari;
 @endphp
 <!DOCTYPE html>
 <html lang="id">
@@ -253,9 +253,9 @@
         <tr>
             <td>
                 <div class="judul-kolom">Kepada</div>
-                [Nama penerima tagihan]<br>
-                [Alamat]<br>
-                NPWP: [nomor NPWP]
+                {{ $invoice->nama_tertagih ?? '[Nama penerima tagihan]' }}<br>
+                {{ $invoice->alamat_tertagih ?? '[Alamat]' }}<br>
+                NPWP: {{ $invoice->npwp_tertagih ?? '[nomor NPWP]' }}
             </td>
             <td>
                 <table class="header">
@@ -308,7 +308,7 @@
             @empty
                 <tr>
                     <td colspan="6" class="tengah" style="padding: 4mm;">
-                        Belum ada rincian item — mesin hitung invoice belum dibangun.
+                        Belum ada rincian item.
                     </td>
                 </tr>
             @endforelse

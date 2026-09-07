@@ -14,6 +14,7 @@ use App\Models\Lokasi;
 use App\Models\StokMutasi;
 use App\Models\SuratJalan;
 use App\Models\User;
+use App\Support\AlokasiFifoBatch;
 use App\Support\BulanRomawi;
 use App\Support\GeneratesNomorDokumen;
 use App\Support\KetersediaanPengiriman;
@@ -336,6 +337,12 @@ class SuratJalanController extends Controller
                     'keterangan' => "Surat jalan {$nomor}",
                     'created_by' => $request->user()->id,
                 ]);
+
+                // Alokasi FIFO: catat batch (penerimaan) mana saja yang dipakai
+                // buat baris ini, dasar hitung invoice sewa nanti
+                // ("04-invoice-sewa-gudang.md" §3a). Aman dari race condition
+                // karena Gudang sudah dikunci di atas sebelum blok ini berjalan.
+                AlokasiFifoBatch::alokasikan($detail, $suratJalan->gudang_id);
             }
 
             $terkunci->forceFill([

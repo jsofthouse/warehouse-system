@@ -31,4 +31,10 @@ class PenerimaanDetail extends Model
     {
         return $this->belongsTo(Item::class);
     }
+
+    /** Baris alokasi FIFO yang menarik unit dari batch ini (§3a dokumen invoice). */
+    public function daftarAlokasiBatchKeluar()
+    {
+        return $this->hasMany(AlokasiBatchKeluar::class);
+    }
 }

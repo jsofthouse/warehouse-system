@@ -90,18 +90,29 @@ Route::middleware(['auth', 'active'])->group(function () {
         Route::get('{suratJalan}', [SuratJalanController::class, 'show'])->name('show');
     });
 
-    // Invoice Sewa Gudang — skeleton, cuma index. Mesin hitung (buat/posting/
-    // cetak) masih terhalang keputusan (a)/(b) di "04-invoice-sewa-gudang.md" §0.
+    // Invoice Sewa Gudang — mesin hitung FIFO/per-batch, final
+    // ("04-invoice-sewa-gudang.md" §0 & §3a). Satu invoice per surat jalan;
+    // alokasi batchnya sendiri jalan otomatis saat surat jalan diposting.
     // Akses dibatasi SA + Operator Pusat saja, ikut matriks hak akses
     // ("01-spesifikasi-sistem.md" §matriks — tidak ada baris baca terpisah
     // seperti Tarif Sewa, jadi baca & tulis disamakan cakupannya).
     Route::prefix('invoice')->name('invoice.')->middleware('role:super_admin,operator_pusat')->group(function () {
         Route::get('/', [InvoiceController::class, 'index'])->name('index');
 
+        // Segmen statis "buat" harus didaftar sebelum "{invoice}" supaya tidak
+        // ketabrak jadi parameter route model binding.
+        Route::get('buat', [InvoiceController::class, 'pilih'])->name('pilih');
+        Route::get('buat/{suratJalan}', [InvoiceController::class, 'draft'])->name('buat.draft');
+        Route::post('/', [InvoiceController::class, 'store'])->name('store');
+
+        Route::post('{invoice}/posting', [InvoiceController::class, 'posting'])->name('posting');
+
         // Render PDF mahal, jadi dibatasi lajunya ("08-keamanan.md" §11.5).
         Route::get('{invoice}/cetak', [InvoiceController::class, 'cetak'])
             ->middleware('throttle:30,1')
             ->name('cetak');
+
+        Route::get('{invoice}', [InvoiceController::class, 'show'])->name('show');
     });
 
     // Kartu Stok & Stok Harian. Matriks hak akses ada di

@@ -10,10 +10,11 @@ use Illuminate\Database\Seeder;
 class TarifSewaSeeder extends Seeder
 {
     /**
-     * Tarif sementara (belum final dari klien) — Rp 5.000/kg/hari, basis
-     * KG_VOLUMETRIK karena data berat aktual per item belum ada, PPN placeholder
-     * 11%. Lihat "04-invoice-sewa-gudang.md" §0 keputusan #1 & #2, dan
-     * "06-pertanyaan-klien.md" A2.
+     * Basis final KG_AKTUAL (item.berat_kg sudah terisi, walau masih estimasi —
+     * lihat ItemSeeder). Dua harga per "04-invoice-sewa-gudang.md" §0 keputusan
+     * #2: harga_jual Rp 4,5rb/kg/hari (tampil di invoice), harga_beli Rp
+     * 3,5rb/kg/hari (cost internal, laporan margin, TIDAK tampil di cetak).
+     * PPN masih placeholder 11%, belum final dari klien.
      *
      * Ganti tarif = tutup baris ini (isi berlaku_sampai) + tambah baris baru,
      * TIDAK PERNAH mengubah baris lama (CLAUDE.md §5, komentar migration
@@ -33,8 +34,9 @@ class TarifSewaSeeder extends Seeder
                 'berlaku_mulai' => '2026-09-01',
             ],
             [
-                'basis' => BasisTarif::KgVolumetrik,
-                'tarif_per_satuan_per_hari' => 5000,
+                'basis' => BasisTarif::KgAktual,
+                'harga_jual_per_satuan_per_hari' => 4.5,
+                'harga_beli_per_satuan_per_hari' => 3.5,
                 'faktor_volumetrik_kg_per_m3' => 250,
                 'ppn_persen' => 11,
                 'min_hari_simpan' => 0,

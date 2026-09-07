@@ -13,9 +13,18 @@ class Invoice extends Model
     // tabelnya dinyatakan eksplisit.
     protected $table = 'invoice';
 
+    // Sama seperti Penerimaan/SuratJalan: kolomnya sendiri sudah default
+    // 'draft' di database, tapi tanpa ini instance PHP hasil create() punya
+    // status null sampai di-refresh() — pemanggil yang langsung baca
+    // $invoice->status sesudah create() (mis. activity_log) akan meledak.
+    protected $attributes = [
+        'status' => StatusInvoice::Draft->value,
+    ];
+
     protected $fillable = [
         'nomor_invoice',
         'gudang_id',
+        'surat_jalan_id',
         'periode_mulai',
         'periode_selesai',
         'subtotal',
@@ -25,6 +34,11 @@ class Invoice extends Model
         'status',
         'tanggal_bayar',
         'keterangan',
+        // Snapshot pihak tertagih, diisi manual per invoice — bukan referensi
+        // ke master data ("04-invoice-sewa-gudang.md" §10).
+        'nama_tertagih',
+        'alamat_tertagih',
+        'npwp_tertagih',
         'created_by',
         'posted_by',
         'posted_at',
@@ -49,6 +63,11 @@ class Invoice extends Model
     public function gudang()
     {
         return $this->belongsTo(Gudang::class);
+    }
+
+    public function suratJalan()
+    {
+        return $this->belongsTo(SuratJalan::class);
     }
 
     public function detail()

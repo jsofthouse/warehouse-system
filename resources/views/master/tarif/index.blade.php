@@ -30,7 +30,8 @@
         <tr>
           <th>Gudang</th>
           <th>Basis</th>
-          <th class="text-end">Tarif / hari</th>
+          <th class="text-end">Harga Jual / hari</th>
+          <th class="text-end">Harga Beli / hari</th>
           <th class="text-end">PPN</th>
           <th>Berlaku</th>
           <th class="w-1"></th>
@@ -41,7 +42,8 @@
           <tr>
             <td>{{ $tarif->gudang->nama }}</td>
             <td>{{ $tarif->basis->label() }}</td>
-            <td class="text-end">Rp {{ number_format($tarif->tarif_per_satuan_per_hari, 2, ',', '.') }}</td>
+            <td class="text-end">Rp {{ number_format($tarif->harga_jual_per_satuan_per_hari, 2, ',', '.') }}</td>
+            <td class="text-end">Rp {{ number_format($tarif->harga_beli_per_satuan_per_hari, 2, ',', '.') }}</td>
             <td class="text-end">{{ rtrim(rtrim($tarif->ppn_persen, '0'), '.') }}%</td>
             <td>
               {{ $tarif->berlaku_mulai->format('d/m/Y') }}
@@ -68,7 +70,7 @@
             @endif
           </tr>
         @empty
-          <tr><td colspan="6" class="text-center text-secondary py-4">Belum ada data tarif sewa.</td></tr>
+          <tr><td colspan="7" class="text-center text-secondary py-4">Belum ada data tarif sewa.</td></tr>
         @endforelse
       </tbody>
     </table>

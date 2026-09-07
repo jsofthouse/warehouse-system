@@ -27,15 +27,29 @@
   </div>
 </div>
 
+{{-- harga_beli TIDAK PERNAH tampil di invoice cetak — cuma cost internal buat
+     laporan margin ("04-invoice-sewa-gudang.md" §0 keputusan #2). --}}
 <div class="row">
   <div class="col-md-4 mb-3">
-    <label class="form-label required" for="tarif_per_satuan_per_hari">Tarif per Satuan per Hari (Rp)</label>
-    <input id="tarif_per_satuan_per_hari" name="tarif_per_satuan_per_hari" type="number" step="0.01" min="0"
-           value="{{ old('tarif_per_satuan_per_hari', $tarif->tarif_per_satuan_per_hari) }}"
-           class="form-control @error('tarif_per_satuan_per_hari') is-invalid @enderror" required>
-    @error('tarif_per_satuan_per_hari') <div class="invalid-feedback">{{ $message }}</div> @enderror
+    <label class="form-label required" for="harga_jual_per_satuan_per_hari">Harga Jual per Satuan per Hari (Rp)</label>
+    <input id="harga_jual_per_satuan_per_hari" name="harga_jual_per_satuan_per_hari" type="number" step="0.01" min="0"
+           value="{{ old('harga_jual_per_satuan_per_hari', $tarif->harga_jual_per_satuan_per_hari) }}"
+           class="form-control @error('harga_jual_per_satuan_per_hari') is-invalid @enderror" required>
+    <small class="form-hint">Ini yang tampil di invoice ke klien.</small>
+    @error('harga_jual_per_satuan_per_hari') <div class="invalid-feedback">{{ $message }}</div> @enderror
   </div>
 
+  <div class="col-md-4 mb-3">
+    <label class="form-label required" for="harga_beli_per_satuan_per_hari">Harga Beli per Satuan per Hari (Rp)</label>
+    <input id="harga_beli_per_satuan_per_hari" name="harga_beli_per_satuan_per_hari" type="number" step="0.01" min="0"
+           value="{{ old('harga_beli_per_satuan_per_hari', $tarif->harga_beli_per_satuan_per_hari) }}"
+           class="form-control @error('harga_beli_per_satuan_per_hari') is-invalid @enderror" required>
+    <small class="form-hint">Cost internal buat laporan margin — tidak tampil di invoice.</small>
+    @error('harga_beli_per_satuan_per_hari') <div class="invalid-feedback">{{ $message }}</div> @enderror
+  </div>
+</div>
+
+<div class="row">
   <div class="col-md-4 mb-3">
     <label class="form-label" for="faktor_volumetrik_kg_per_m3">Faktor Volumetrik (kg/m³)</label>
     <input id="faktor_volumetrik_kg_per_m3" name="faktor_volumetrik_kg_per_m3" type="number" step="0.01" min="0.01"
