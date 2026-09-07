@@ -28,15 +28,16 @@ Tiga keluaran utama sistem:
 
 ## 2. Status
 
-Terakhir disegarkan 6 September 2026 (malam — Modul Activity Log dieksekusi dan lolos test).
+Terakhir disegarkan 7 September 2026 (Modul Invoice Sewa Gudang — mesin hitung
+FIFO/per-batch dieksekusi dan lolos test).
 
 | Aspek | Status |
 |---|---|
-| Tahap | **Fase 1 berjalan.** Auth & RBAC, master data, Modul Barang Masuk, Modul Surat Jalan, Modul Kartu Stok & Stok Harian, dan Modul Activity Log sudah jadi di kode dan lolos test. Berikutnya Modul Invoice Sewa Gudang — Stok Harian sudah siap jadi basisnya. |
-| Repo | `gudang-alkap`, branch `main`, remote `jsofthouse/warehouse-system` |
+| Tahap | **Fase 1 berjalan.** Auth & RBAC, master data, Modul Barang Masuk, Modul Surat Jalan, Modul Kartu Stok & Stok Harian, Modul Activity Log, dan Modul Invoice Sewa Gudang sudah jadi di kode dan lolos test. Berikutnya Laporan (distribusi, biaya sewa). |
+| Repo | `gudang-alkap`, branch `feat/invoice-sewa-gudang-skeleton` (belum merge ke `main`), remote `jsofthouse/warehouse-system` |
 | Lingkungan | Masih lokal (Laragon, `APP_ENV=local`, MySQL `whs`). Target tetap online multi-user di VPS, belum dideploy. |
 | Skala lokasi | Belum final (32 baris terlihat di data awal) |
-| Data berat barang | **MASIH BELUM ADA** — 0 dari 17 item punya `berat_kg` (11 sudah punya dimensi). Tetap blocker Modul Invoice: tanpa berat, rumus kg-hari di §7 tidak bisa jalan. |
+| Data berat barang | **Estimasi internet**, 16 dari 17 item punya `berat_kg` — cukup buat modul Invoice jalan, tapi BUKAN data resmi klien. RAN TRAKTOR (ALK-01) sengaja dibiarkan null, definisinya belum jelas (`06-pertanyaan-klien.md` A6). |
 | Template surat jalan resmi | Belum ada. Cetak jalan dulu pakai format umum `docs/05-format-dokumen.md` §1 (pertanyaan klien C1). |
 | BAST | Belum ada info. Kolom `nomor_bast` sudah ada dan opsional, baru wajib di Fase 3. |
 
@@ -49,7 +50,7 @@ Terakhir disegarkan 6 September 2026 (malam — Modul Activity Log dieksekusi da
 | Barang Masuk (Penerimaan) | Jadi — draft, posting, pembatalan, cetak PDF |
 | Surat Jalan | Jadi — draft, posting, tandai diterima, pembatalan, cetak tiga rangkap |
 | Kartu Stok & Stok Harian | Jadi — ringkasan stok on-hand, riwayat mutasi berpaginasi, snapshot harian terjadwal + hitung ulang manual. Sempat ada bug (mismatch format tanggal di `updateOrCreate`, sudah di-fix commit `52900cd`) — **6/6 test hijau dikonfirmasi Jo** |
-| Invoice Sewa Gudang | **Belum** — terhalang data berat barang |
+| Invoice Sewa Gudang | Jadi — mesin hitung FIFO/per-batch final (opsi (b)), satu invoice per surat jalan, draft → terbit. Alokasi batch otomatis saat surat jalan diposting. Detail di `docs/04-invoice-sewa-gudang.md` §3a. |
 | Activity Log | Jadi — pencatatan login/login gagal lewat Listener, halaman list dengan filter lengkap (tanggal, user, aksi, jenis dokumen, IP), link "Riwayat" di 7 index + 3 halaman show. Dua penyimpangan dari rencana ditemukan & dikonfirmasi Jo saat eksekusi (logging login lama dihapus diganti Listener; morph map ternyata juga mengubah format `stok_mutasi.referensi_type`) — detail di `docs/12-modul-activity-log.md` §11. |
 | Laporan (distribusi, biaya sewa) | **Belum** |
 
@@ -135,13 +136,15 @@ operator yang posting bersamaan tidak mendapat nomor kembar.
 
 ## 6. Model data (ringkas)
 
-15 tabel. Detail lengkap beserta DDL ada di `docs/02-model-data.md`.
+16 tabel — `docs/02-model-data.md` masih versi lama (15 tabel, belum diupdate
+sejak `alokasi_batch_keluar` ditambah, lihat §7). DDL final ikuti migration di
+`database/migrations/`, bukan dokumen itu.
 
 ```
 users              gudang            lokasi            item
 alokasi_kebutuhan  penerimaan        penerimaan_detail
 surat_jalan        surat_jalan_detail
-stok_mutasi        stok_harian
+stok_mutasi        stok_harian       alokasi_batch_keluar
 tarif_sewa         invoice           invoice_detail
 activity_log
 ```
@@ -154,18 +157,25 @@ Tiga tabel yang paling sering disalahpahami:
 
 ## 7. Rumus invoice sewa gudang
 
+Final: **per-batch/FIFO**, satu invoice per surat jalan — bukan snapshot harian
+agregat lagi (§3a dokumen di bawah menggantikan §3-nya).
+
 ```
-W(i,d)   = qty_akhir_hari(i,d) x berat_kg(i)      kg tersimpan item i pada hari d
-KGH(i)   = SUM(d dalam periode) W(i,d)            akumulasi kg-hari
-Biaya(i) = KGH(i) x tarif_per_kg_per_hari
-Total    = SUM(i) Biaya(i) + PPN
+hari_simpan(alokasi) = tanggal_surat_jalan - tanggal_masuk_batch
+unit_hari(item)      = SUM(alokasi) qty_dialokasikan x hari_simpan
+kg_hari(item)        = unit_hari(item) x item.berat_kg
+Biaya(item)          = kg_hari(item) x harga_jual_per_satuan_per_hari
+Total                = SUM(item) Biaya(item) + PPN
 ```
 
-Konvensi: hari masuk dihitung, hari keluar tidak. Barang masuk dan keluar di hari
-yang sama menghasilkan 0 hari.
+Konvensi: hari masuk dihitung, hari keluar tidak (otomatis konsisten lewat
+selisih tanggal biasa, tidak perlu logic tambahan). Barang masuk dan keluar di
+hari yang sama menghasilkan 0 hari.
 
-Penjelasan lengkap, alasan memakai snapshot harian alih-alih FIFO per batch, dan
-contoh perhitungan ada di `docs/04-invoice-sewa-gudang.md`.
+`stok_harian` (snapshot akhir hari) tetap dipakai buat Kartu Stok & laporan
+stok, tapi bukan lagi basis invoice. Penjelasan lengkap, skema tabel
+`alokasi_batch_keluar`, alur posting, dan contoh perhitungan ada di
+`docs/04-invoice-sewa-gudang.md` §3a.
 
 ## 8. Peta dokumen
 
