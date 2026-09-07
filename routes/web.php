@@ -7,6 +7,7 @@ use App\Http\Controllers\Master\ItemController;
 use App\Http\Controllers\Master\LokasiController;
 use App\Http\Controllers\Master\TarifSewaController;
 use App\Http\Controllers\Pengguna\UserController;
+use App\Http\Controllers\Transaksi\InvoiceController;
 use App\Http\Controllers\Transaksi\PenerimaanController;
 use App\Http\Controllers\Transaksi\StokController;
 use App\Http\Controllers\Transaksi\SuratJalanController;
@@ -89,10 +90,19 @@ Route::middleware(['auth', 'active'])->group(function () {
         Route::get('{suratJalan}', [SuratJalanController::class, 'show'])->name('show');
     });
 
-    Route::view('/invoice', 'placeholder', [
-        'title' => 'Invoice Sewa Gudang',
-        'pretitle' => 'Transaksi',
-    ])->name('invoice.index');
+    // Invoice Sewa Gudang — skeleton, cuma index. Mesin hitung (buat/posting/
+    // cetak) masih terhalang keputusan (a)/(b) di "04-invoice-sewa-gudang.md" §0.
+    // Akses dibatasi SA + Operator Pusat saja, ikut matriks hak akses
+    // ("01-spesifikasi-sistem.md" §matriks — tidak ada baris baca terpisah
+    // seperti Tarif Sewa, jadi baca & tulis disamakan cakupannya).
+    Route::prefix('invoice')->name('invoice.')->middleware('role:super_admin,operator_pusat')->group(function () {
+        Route::get('/', [InvoiceController::class, 'index'])->name('index');
+
+        // Render PDF mahal, jadi dibatasi lajunya ("08-keamanan.md" §11.5).
+        Route::get('{invoice}/cetak', [InvoiceController::class, 'cetak'])
+            ->middleware('throttle:30,1')
+            ->name('cetak');
+    });
 
     // Kartu Stok & Stok Harian. Matriks hak akses ada di
     // "Modul Kartu Stok dan Stok Harian.md" §6:

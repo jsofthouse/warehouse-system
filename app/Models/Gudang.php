@@ -17,6 +17,9 @@ class Gudang extends Model
         'kota',
         'alamat',
         'is_active',
+        'nama_penagih',
+        'alamat_penagih',
+        'npwp_penagih',
     ];
 
     protected $casts = [

@@ -66,6 +66,11 @@ class Invoice extends Model
         return $this->belongsTo(User::class, 'posted_by');
     }
 
+    public function pembatal()
+    {
+        return $this->belongsTo(User::class, 'dibatalkan_by');
+    }
+
     public function scopeUntukGudang(Builder $query, int $gudangId): Builder
     {
         return $query->where('gudang_id', $gudangId);
