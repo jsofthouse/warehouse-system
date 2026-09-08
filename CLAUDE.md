@@ -28,8 +28,9 @@ Tiga keluaran utama sistem:
 
 ## 2. Status
 
-Terakhir disegarkan 7 September 2026 (Modul Invoice Sewa Gudang — mesin hitung
-FIFO/per-batch dieksekusi dan lolos test).
+Terakhir disegarkan 8 September 2026 (Modul Invoice Sewa Gudang — kode
+disusulkan ke keputusan final §3b: FIFO per-batch dicabut dari alur aktif,
+ganti pakai `tanggal_masuk_item` MIN per item).
 
 | Aspek | Status |
 |---|---|
@@ -50,7 +51,7 @@ FIFO/per-batch dieksekusi dan lolos test).
 | Barang Masuk (Penerimaan) | Jadi — draft, posting, pembatalan, cetak PDF |
 | Surat Jalan | Jadi — draft, posting, tandai diterima, pembatalan, cetak tiga rangkap |
 | Kartu Stok & Stok Harian | Jadi — ringkasan stok on-hand, riwayat mutasi berpaginasi, snapshot harian terjadwal + hitung ulang manual. Sempat ada bug (mismatch format tanggal di `updateOrCreate`, sudah di-fix commit `52900cd`) — **6/6 test hijau dikonfirmasi Jo** |
-| Invoice Sewa Gudang | Jadi — mesin hitung FIFO/per-batch final (opsi (b)), satu invoice per surat jalan, draft → terbit. Alokasi batch otomatis saat surat jalan diposting. Detail di `docs/04-invoice-sewa-gudang.md` §3a. |
+| Invoice Sewa Gudang | Jadi — mesin hitung final tanpa FIFO (§3b): `tanggal_masuk_item` = MIN tanggal Penerimaan posted per item+gudang, satu invoice per surat jalan, draft → terbit. Tidak ada alokasi batch otomatis saat surat jalan diposting lagi (skema FIFO §3a dorman, tidak dipanggil). Detail di `docs/04-invoice-sewa-gudang.md` §3b. |
 | Activity Log | Jadi — pencatatan login/login gagal lewat Listener, halaman list dengan filter lengkap (tanggal, user, aksi, jenis dokumen, IP), link "Riwayat" di 7 index + 3 halaman show. Dua penyimpangan dari rencana ditemukan & dikonfirmasi Jo saat eksekusi (logging login lama dihapus diganti Listener; morph map ternyata juga mengubah format `stok_mutasi.referensi_type`) — detail di `docs/12-modul-activity-log.md` §11. |
 | Laporan (distribusi, biaya sewa) | **Belum** |
 
@@ -157,12 +158,15 @@ Tiga tabel yang paling sering disalahpahami:
 
 ## 7. Rumus invoice sewa gudang
 
-Final: **per-batch/FIFO**, satu invoice per surat jalan — bukan snapshot harian
-agregat lagi (§3a dokumen di bawah menggantikan §3-nya).
+Final: **tanpa FIFO**, satu invoice per surat jalan — bukan snapshot harian
+agregat (§3 lama), dan bukan alokasi per-batch (§3a, sempat dibangun lalu
+dikoreksi hari yang sama). Final ada di §3b dokumen di bawah.
 
 ```
-hari_simpan(alokasi) = tanggal_surat_jalan - tanggal_masuk_batch
-unit_hari(item)      = SUM(alokasi) qty_dialokasikan x hari_simpan
+tanggal_masuk_item(item, gudang) = MIN(penerimaan.tanggal) atas seluruh
+                                    Penerimaan posted untuk item & gudang itu
+hari_simpan(item)    = tanggal_surat_jalan - tanggal_masuk_item
+unit_hari(item)      = jumlah_kirim(item) x hari_simpan(item)
 kg_hari(item)        = unit_hari(item) x item.berat_kg
 Biaya(item)          = kg_hari(item) x harga_jual_per_satuan_per_hari
 Total                = SUM(item) Biaya(item) + PPN
@@ -173,9 +177,10 @@ selisih tanggal biasa, tidak perlu logic tambahan). Barang masuk dan keluar di
 hari yang sama menghasilkan 0 hari.
 
 `stok_harian` (snapshot akhir hari) tetap dipakai buat Kartu Stok & laporan
-stok, tapi bukan lagi basis invoice. Penjelasan lengkap, skema tabel
-`alokasi_batch_keluar`, alur posting, dan contoh perhitungan ada di
-`docs/04-invoice-sewa-gudang.md` §3a.
+stok, tapi bukan lagi basis invoice. Tabel/model `alokasi_batch_keluar` dan
+class `AlokasiFifoBatch` tetap ada di kode tapi dorman (tidak dipanggil dari
+alur invoice mana pun) — riwayat keputusan, alur posting lama, dan contoh
+perhitungan final ada di `docs/04-invoice-sewa-gudang.md` §3a & §3b.
 
 ## 8. Peta dokumen
 
