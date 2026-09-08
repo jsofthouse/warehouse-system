@@ -58,12 +58,12 @@
 
         body {
             font-family: DejaVu Sans, sans-serif;
-            font-size: 10pt;
+            font-size: 9pt;
             color: #000;
         }
 
         h1 {
-            font-size: 14pt;
+            font-size: 12pt;
             margin: 0 0 1mm;
             text-align: center;
             text-transform: uppercase;
@@ -72,7 +72,7 @@
 
         .subjudul {
             text-align: center;
-            font-size: 10pt;
+            font-size: 9pt;
             margin: 0 0 5mm;
         }
 
@@ -83,12 +83,13 @@
         }
 
         .kop .nama-penagih {
-            font-size: 12pt;
+            font-size: 11pt;
             font-weight: bold;
         }
 
         .kop .alamat {
-            font-size: 8.5pt;
+            font-size: 8pt;
+            color: #333;
         }
 
         table {
@@ -103,20 +104,20 @@
         table.info td {
             vertical-align: top;
             width: 50%;
-            font-size: 9.5pt;
+            font-size: 8.5pt;
         }
 
         table.info .judul-kolom {
             font-weight: bold;
-            font-size: 8.5pt;
+            font-size: 7.5pt;
             text-transform: uppercase;
             margin-bottom: 1mm;
         }
 
         table.header td {
-            padding: 0.7mm 0;
+            padding: 0.5mm 0;
             vertical-align: top;
-            font-size: 9.5pt;
+            font-size: 8.5pt;
         }
 
         table.header td.label {
@@ -129,10 +130,10 @@
         }
 
         .catatan-tarif {
-            margin: 3mm 0;
-            font-size: 9pt;
+            margin: 2.5mm 0;
+            font-size: 8pt;
             border: 0.5pt solid #999;
-            padding: 2mm;
+            padding: 1.5mm 2mm;
         }
 
         table.barang {
@@ -143,8 +144,8 @@
         table.barang th,
         table.barang td {
             border: 0.5pt solid #000;
-            padding: 1.5mm 2mm;
-            font-size: 9pt;
+            padding: 1mm 1.5mm;
+            font-size: 8.5pt;
         }
 
         table.barang thead {
@@ -172,8 +173,8 @@
         table.ringkasan td {
             border: 0.5pt solid #000;
             border-top: none;
-            padding: 1.5mm 2mm;
-            font-size: 9.5pt;
+            padding: 1mm 1.5mm;
+            font-size: 8.5pt;
         }
 
         table.ringkasan tr.total td {
@@ -181,8 +182,8 @@
         }
 
         .terbilang {
-            margin-top: 3mm;
-            font-size: 9pt;
+            margin-top: 2.5mm;
+            font-size: 8pt;
             font-style: italic;
         }
 
@@ -194,7 +195,7 @@
         .ttd td {
             width: 40%;
             text-align: center;
-            font-size: 9.5pt;
+            font-size: 8.5pt;
             vertical-align: top;
         }
 
@@ -208,8 +209,8 @@
         }
 
         .kaki {
-            margin-top: 5mm;
-            font-size: 8pt;
+            margin-top: 4mm;
+            font-size: 7pt;
             color: #444;
             border-top: 0.5pt solid #999;
             padding-top: 1.5mm;
@@ -296,12 +297,12 @@
     <table class="barang">
         <thead>
             <tr>
-                <th class="tengah" style="width: 8mm;height: 6mm;">No</th>
+                <th class="tengah" style="width: 7mm;height: 6mm;">No</th>
                 <th>Nama Barang</th>
-                <th class="angka">Unit-hari</th>
-                <th class="angka">{{ $labelSatuan }} per unit</th>
-                <th class="angka">{{ $labelSatuan }}-hari</th>
-                <th class="angka">Jumlah (Rp)</th>
+                <th class="angka" style="width: 20mm">Unit-hari</th>
+                <th class="angka" style="width: 20mm">{{ $labelSatuan }} per unit</th>
+                <th class="angka" style="width: 20mm">{{ $labelSatuan }}-hari</th>
+                <th class="angka" style="width: 26mm">Jumlah (Rp)</th>
             </tr>
         </thead>
         <tbody>
@@ -323,7 +324,7 @@
             @endforelse
             <tr>
                 <td class="angka" colspan="5">SUBTOTAL</td>
-                <td class="angka" style="width: 30mm">{{ number_format($invoice->subtotal, 0, ',', '.') }}</td>
+                <td class="angka">{{ number_format($invoice->subtotal, 0, ',', '.') }}</td>
             </tr>
             <tr>
                 <td class="angka" colspan="5">PPN {{ rtrim(rtrim((string) $invoice->ppn_persen, '0'), '.') }}%</td>

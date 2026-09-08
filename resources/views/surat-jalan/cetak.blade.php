@@ -47,12 +47,12 @@
 
         body {
             font-family: DejaVu Sans, sans-serif;
-            font-size: 10pt;
+            font-size: 9pt;
             color: #000;
         }
 
         h1 {
-            font-size: 14pt;
+            font-size: 12pt;
             margin: 0 0 1mm;
             text-align: center;
             text-transform: uppercase;
@@ -61,30 +61,64 @@
 
         .subjudul {
             text-align: center;
-            font-size: 10pt;
+            font-size: 9pt;
             margin: 0 0 5mm;
         }
 
         .kop {
-            border-bottom: 1.5pt solid #000;
-            padding-bottom: 3mm;
+            border-bottom: 3pt double #000;
+            padding-bottom: 2.5mm;
             margin-bottom: 4mm;
         }
 
+        .kop table.kop-table td {
+            vertical-align: middle;
+            padding: 0;
+        }
+
+        .kop .kop-logo {
+            width: 48mm;
+        }
+
+        .kop .kop-logo img {
+            height: 14mm;
+            margin-right: 2mm;
+            vertical-align: middle;
+        }
+
+        .kop .logo-placeholder {
+            display: inline-block;
+            box-sizing: border-box;
+            width: 21mm;
+            height: 14mm;
+            border: 0.5pt dashed #999;
+            color: #999;
+            font-size: 6pt;
+            line-height: 1.2;
+            text-align: center;
+            vertical-align: middle;
+            padding-top: 4.5mm;
+            margin-right: 2mm;
+        }
+
+        .kop .kop-identitas {
+            text-align: right;
+        }
+
+        .kop .rangkap {
+            font-size: 7.5pt;
+            color: #333;
+            margin-bottom: 1mm;
+        }
+
         .kop .nama-gudang {
-            font-size: 12pt;
+            font-size: 11pt;
             font-weight: bold;
         }
 
         .kop .alamat {
-            font-size: 8.5pt;
-        }
-
-        .kop .rangkap {
-            float: right;
-            font-size: 8.5pt;
-            border: 0.5pt solid #000;
-            padding: 1mm 2.5mm;
+            font-size: 8pt;
+            color: #333;
         }
 
         table {
@@ -99,23 +133,23 @@
 
         table.tujuan td {
             border: 0.5pt solid #000;
-            padding: 2mm 2.5mm;
+            padding: 1.5mm 2mm;
             width: 50%;
             vertical-align: top;
-            font-size: 9.5pt;
+            font-size: 8.5pt;
         }
 
         table.tujuan .judul-kolom {
             font-weight: bold;
-            font-size: 8.5pt;
+            font-size: 7.5pt;
             text-transform: uppercase;
             margin-bottom: 1mm;
         }
 
         table.header td {
-            padding: 0.7mm 0;
+            padding: 0.5mm 0;
             vertical-align: top;
-            font-size: 9.5pt;
+            font-size: 8.5pt;
         }
 
         table.header td.label {
@@ -135,8 +169,8 @@
         table.barang th,
         table.barang td {
             border: 0.5pt solid #000;
-            padding: 1.5mm 2mm;
-            font-size: 9.5pt;
+            padding: 1mm 1.5mm;
+            font-size: 8.5pt;
         }
 
         table.barang thead {
@@ -158,10 +192,10 @@
         }
 
         .catatan {
-            margin-top: 3mm;
-            font-size: 9pt;
+            margin-top: 2.5mm;
+            font-size: 8pt;
             border: 0.5pt solid #999;
-            padding: 2mm;
+            padding: 1.5mm 2mm;
         }
 
         .ttd {
@@ -170,9 +204,9 @@
         }
 
         .ttd td {
-            width: 33%;
+            width: 50%;
             text-align: center;
-            font-size: 9.5pt;
+            font-size: 8.5pt;
             vertical-align: top;
         }
 
@@ -186,13 +220,13 @@
         }
 
         .ttd .keterangan {
-            font-size: 8pt;
+            font-size: 7pt;
             color: #444;
         }
 
         .kaki {
-            margin-top: 5mm;
-            font-size: 8pt;
+            margin-top: 4mm;
+            font-size: 7pt;
             color: #444;
             border-top: 0.5pt solid #999;
             padding-top: 1.5mm;
@@ -235,9 +269,27 @@
         <div class="{{ $nomorRangkap > 0 ? 'halaman-baru' : '' }}">
 
             <div class="kop">
-                <div class="rangkap">Rangkap {{ $nomorRangkap + 1 }}/3 · {{ $namaRangkap }}</div>
-                <div class="nama-gudang">{{ $suratJalan->gudang->nama }}</div>
-                <div class="alamat">{{ $suratJalan->gudang->alamat ?: $suratJalan->gudang->kota }}</div>
+                <table class="kop-table">
+                    <tr>
+                        <td class="kop-logo">
+                            @if (file_exists(public_path('images/logo-jasco.png')))
+                                <img src="{{ public_path('images/logo-jasco.png') }}" alt="Logo JASCO">
+                            @else
+                                <span class="logo-placeholder">LOGO<br>JASCO</span>
+                            @endif
+                            @if (file_exists(public_path('images/logo-primapro.png')))
+                                <img src="{{ public_path('images/logo-primapro.png') }}" alt="Logo PrimaPro">
+                            @else
+                                <span class="logo-placeholder">LOGO<br>PRIMAPRO</span>
+                            @endif
+                        </td>
+                        <td class="kop-identitas">
+                            <div class="rangkap">Rangkap {{ $nomorRangkap + 1 }}/3 · {{ $namaRangkap }}</div>
+                            <div class="nama-gudang">{{ $suratJalan->gudang->nama }}</div>
+                            <div class="alamat">{{ $suratJalan->gudang->alamat ?: $suratJalan->gudang->kota }}</div>
+                        </td>
+                    </tr>
+                </table>
             </div>
 
             <h1>Surat Jalan</h1>
@@ -296,11 +348,11 @@
             <table class="barang">
                 <thead>
                     <tr>
-                        <th class="tengah" style="width: 8mm">No</th>
+                        <th class="tengah" style="width: 7mm">No</th>
                         <th>Nama Barang</th>
-                        <th style="width: 18mm">Satuan</th>
-                        <th class="angka" style="width: 20mm">Jumlah</th>
-                        <th style="width: 32mm">Ket.</th>
+                        <th style="width: 15mm">Satuan</th>
+                        <th class="angka" style="width: 16mm">Jumlah</th>
+                        <th style="width: 20mm">Ket.</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -338,17 +390,14 @@
             <table class="ttd">
                 <tr>
                     <td>Pengirim,<br>Petugas Gudang</td>
-                    <td>Sopir,</td>
                     <td>Penerima,</td>
                 </tr>
                 <tr>
                     <td class="ruang"></td>
                     <td class="ruang"></td>
-                    <td class="ruang"></td>
                 </tr>
                 <tr>
                     <td class="garis">{{ $suratJalan->poster?->name ?? $suratJalan->pembuat?->name ?? '' }}</td>
-                    <td class="garis">{{ $suratJalan->nama_sopir ?: '' }}</td>
                     <td class="garis">
                         {{ $suratJalan->nama_penerima ?: '' }}
                         <div class="keterangan">Nama jelas &amp; stempel</div>
