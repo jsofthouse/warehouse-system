@@ -85,3 +85,50 @@ php artisan serve
 ```bash
 php artisan test
 ```
+
+## Setup cron di hosting (scheduler)
+
+Aplikasi punya satu scheduled command, `stok:hitung-harian`, didaftarkan di
+`routes/console.php` — jalan tiap hari jam 23:55 (snapshot stok akhir hari,
+basis perhitungan invoice sewa gudang). Laravel Task Scheduling cuma butuh
+**satu** cron job yang mengecek jadwal tiap menit, bukan cron terpisah per
+command.
+
+### Cron job yang perlu dibuat di cPanel
+
+cPanel → **Cron Jobs** → **Add New Cron Job**:
+
+- **Common Settings:** `Once Per Minute (* * * * *)`
+- **Command:**
+
+  ```
+  cd /home/ISI_USERNAME_CPANEL/ISI_PATH_APLIKASI && /usr/local/bin/ea-phpXX artisan schedule:run >> /dev/null 2>&1
+  ```
+
+  Ganti tiga placeholder:
+  - `ISI_USERNAME_CPANEL` — username akun cPanel di hosting.
+  - `ISI_PATH_APLIKASI` — path folder aplikasi Laravel ini di server (biasanya
+    DI LUAR `public_html`, dengan document root subdomain di-set/symlink ke
+    folder `public/` di dalamnya).
+  - `ea-phpXX` — path binary PHP CLI. Konvensi cPanel + EasyApache 4 (paling
+    umum sekarang): `/usr/local/bin/ea-php83` (angka sesuai versi PHP yang
+    dipilih di MultiPHP Manager — app ini butuh PHP 8.3+). Kalau hostingnya
+    masih pakai CloudLinux alt-php lama, formatnya beda:
+    `/opt/alt/php83/usr/bin/php`. **Cek dulu ke provider hosting / MultiPHP
+    Manager di cPanel, path mana yang benar-benar tersedia** — jangan pakai
+    `php` polos di cron, itu sering resolve ke PHP CGI atau versi default
+    server yang belum tentu 8.3+.
+
+### Catatan penting
+
+- **Jangan bikin cron terpisah untuk `stok:hitung-harian`.** Cron di atas
+  cuma manggil `schedule:run` tiap menit; Laravel sendiri yang tahu jam
+  23:55 lewat definisi di `routes/console.php`.
+- `stok:hitung-harian` didaftarkan dengan `->onOneServer()`, yang butuh
+  cache store dengan atomic lock (`database`, `redis`, atau `memcached`) —
+  `.env.production` sudah diset `CACHE_STORE=database`, jangan diganti ke
+  `file`/`array` di hosting atau lock-nya tidak berfungsi.
+- Untuk debug kalau scheduler kelihatan tidak jalan, ganti sementara
+  `>> /dev/null 2>&1` jadi `>> /home/ISI_USERNAME_CPANEL/schedule.log 2>&1`,
+  cek isinya, lalu kembalikan ke `/dev/null` setelah beres — log yang
+  menumpuk tiap menit bisa cepat membesar kalau dibiarkan.
