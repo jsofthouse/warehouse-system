@@ -129,6 +129,9 @@ class InvoiceTest extends TestCase
             ->assertSessionHas('error');
 
         $this->assertStringContainsString('berat_kg', session('error'));
+        // §7 aturan 2 "04-invoice-sewa-gudang.md": pesan HARUS menyebutkan
+        // item mana yang bermasalah, bukan cuma kata "berat_kg" generik.
+        $this->assertStringContainsString('RAN Traktor', session('error'));
     }
 
     // --- Pendukung ----------------------------------------------------------
