@@ -52,6 +52,26 @@
             --bs-tertiary-bg: var(--tblr-tertiary-bg);
         }
 
+        /* tabler.min.css v1.4.0 tidak punya rule buat .nav-section-title (dicek:
+           0 match di public/vendor/tabler/css/tabler.min.css). Markup sidebar ini
+           ngikut pola Tabler versi lama yang sudah punya section title bawaan;
+           versi vendor sekarang bawaannya nggak punya, jadi tanpa ini header
+           "Transaksi" / "Master Data" / "Sistem" nongol polos rata kiri, sama
+           persis kayak nav-link biasa. */
+        .navbar-vertical .nav-section-title {
+            display: block;
+            padding: 1.25rem 1rem .5rem;
+            font-size: .6875rem;
+            font-weight: 700;
+            letter-spacing: .06em;
+            text-transform: uppercase;
+            color: rgba(255, 255, 255, .45);
+        }
+
+        .navbar-vertical .nav-section-title:first-child {
+            padding-top: .5rem;
+        }
+
         /* Dropdown yang dipasang dengan dropdownParent: 'body' keluar dari stacking
            context wrapper-nya, jadi z-index bawaannya kalah dari navbar, header sticky,
            dan modal Tabler. Diangkat ke atas modal (1055).
