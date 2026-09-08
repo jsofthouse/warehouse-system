@@ -3,18 +3,22 @@
 namespace App\Support;
 
 use App\Enums\BasisTarif;
+use App\Enums\StatusPenerimaan;
 use App\Exceptions\PerhitunganBiayaSewaGagal;
-use App\Models\AlokasiBatchKeluar;
 use App\Models\SuratJalan;
 use App\Models\TarifSewa;
 use Illuminate\Support\Carbon;
+use Illuminate\Support\Facades\DB;
 
 /**
- * Hitung biaya sewa gudang satu surat jalan dari baris `alokasi_batch_keluar`
- * yang sudah tertulis saat posting ("04-invoice-sewa-gudang.md" §3a.5). Dipakai
- * dua kali: buat pratinjau draft (tidak disimpan) dan buat isi `invoice_detail`
- * yang sesungguhnya (InvoiceController::store()) — SELALU dihitung ulang penuh
- * di server, tidak pernah dari angka yang tampil di pratinjau (CLAUDE.md §10).
+ * Hitung biaya sewa gudang satu surat jalan langsung dari tanggal dokumen,
+ * tanpa alokasi per-batch ("04-invoice-sewa-gudang.md" §3b.1 — menggantikan
+ * skema FIFO §3a yang sudah dorman). `tanggal_masuk_item` per item diambil
+ * dari MIN(penerimaan.tanggal) seluruh Penerimaan berstatus posted untuk item
+ * & gudang itu. Dipakai dua kali: buat pratinjau draft (tidak disimpan) dan
+ * buat isi `invoice_detail` yang sesungguhnya (InvoiceController::store()) —
+ * SELALU dihitung ulang penuh di server, tidak pernah dari angka yang tampil
+ * di pratinjau (CLAUDE.md §10 poin 3).
  */
 final class PerhitunganBiayaSewa
 {
@@ -47,6 +51,17 @@ final class PerhitunganBiayaSewa
             );
         }
 
+        $itemIds = $suratJalan->detail->pluck('item_id')->unique()->values();
+
+        $tanggalMasukPerItem = DB::table('penerimaan_detail')
+            ->join('penerimaan', 'penerimaan.id', '=', 'penerimaan_detail.penerimaan_id')
+            ->where('penerimaan.gudang_id', $suratJalan->gudang_id)
+            ->where('penerimaan.status', StatusPenerimaan::Posted->value)
+            ->whereIn('penerimaan_detail.item_id', $itemIds)
+            ->selectRaw('penerimaan_detail.item_id as item_id, MIN(penerimaan.tanggal) as tanggal_masuk')
+            ->groupBy('penerimaan_detail.item_id')
+            ->pluck('tanggal_masuk', 'item_id');
+
         $baris = [];
         $tanggalMasukPalingAwal = null;
 
@@ -61,27 +76,20 @@ final class PerhitunganBiayaSewa
                 );
             }
 
-            $alokasi = AlokasiBatchKeluar::query()
-                ->where('surat_jalan_detail_id', $detail->id)
-                ->with('penerimaanDetail.penerimaan')
-                ->get();
+            $tanggalMasukMentah = $tanggalMasukPerItem->get($detail->item_id);
 
-            if ($alokasi->isEmpty()) {
+            if ($tanggalMasukMentah === null) {
                 throw new PerhitunganBiayaSewaGagal(
-                    "Baris {$item->nama} belum punya alokasi batch — surat jalan ini kemungkinan diposting sebelum mesin FIFO ada."
+                    "Item {$item->nama} tidak punya satupun Penerimaan berstatus posted di gudang {$suratJalan->gudang->nama} — barang masuknya kemungkinan belum diposting. Posting dulu dokumen Penerimaan terkait sebelum bikin invoice."
                 );
             }
 
-            $totalUnitHari = 0;
+            $tanggalMasuk = Carbon::parse($tanggalMasukMentah);
+            $hariSimpan = (int) $tanggalMasuk->diffInDays($suratJalan->tanggal);
+            $totalUnitHari = $detail->jumlah_kirim * $hariSimpan;
 
-            foreach ($alokasi as $satuAlokasi) {
-                $tanggalMasuk = $satuAlokasi->penerimaanDetail->penerimaan->tanggal;
-                $hariSimpan = (int) $tanggalMasuk->diffInDays($suratJalan->tanggal);
-                $totalUnitHari += $satuAlokasi->qty_dialokasikan * $hariSimpan;
-
-                if ($tanggalMasukPalingAwal === null || $tanggalMasuk->lt($tanggalMasukPalingAwal)) {
-                    $tanggalMasukPalingAwal = $tanggalMasuk;
-                }
+            if ($tanggalMasukPalingAwal === null || $tanggalMasuk->lt($tanggalMasukPalingAwal)) {
+                $tanggalMasukPalingAwal = $tanggalMasuk;
             }
 
             $beratKg = (float) $item->berat_kg;

@@ -5,10 +5,8 @@ namespace Tests\Feature\Transaksi;
 use App\Enums\BasisTarif;
 use App\Enums\StatusInvoice;
 use App\Enums\StatusPenerimaan;
-use App\Enums\StatusSuratJalan;
 use App\Enums\TipeMutasiStok;
 use App\Enums\UserRole;
-use App\Models\AlokasiBatchKeluar;
 use App\Models\AlokasiKebutuhan;
 use App\Models\Gudang;
 use App\Models\Item;
@@ -22,69 +20,42 @@ use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
 
 /**
- * Mesin hitung invoice sewa gudang, versi FIFO per-batch — final
- * ("04-invoice-sewa-gudang.md" §0 & §3a). Skenario dasar mengikuti pola contoh
- * Genset di §5 dokumen, tapi dengan dua batch tanggal masuk berbeda supaya
- * pemilahan FIFO-nya ikut teruji, bukan cuma satu batch tunggal.
+ * Mesin hitung invoice sewa gudang — final, tanpa alokasi per-batch
+ * ("04-invoice-sewa-gudang.md" §0 & §3b; skema FIFO §3a sudah dorman, tidak
+ * dipanggil dari alur ini). Skenario dasar mengikuti pola contoh Genset di §5
+ * dokumen, dengan dua dokumen Penerimaan bertanggal beda buat item yang sama
+ * supaya aturan "pakai tanggal masuk PALING AWAL (MIN)" ikut teruji.
  */
 class InvoiceTest extends TestCase
 {
     use RefreshDatabase;
 
-    public function test_posting_surat_jalan_mengalokasikan_fifo_lintas_dua_batch(): void
+    public function test_draft_invoice_pakai_tanggal_masuk_paling_awal_dari_dua_dokumen_penerimaan(): void
     {
         [$gudang, $lokasi, $item, $operator] = $this->siapkanData();
 
-        // Batch A: 10 unit masuk 20 Agustus. Batch B: 10 unit masuk 24 Agustus.
+        // Dua dokumen Penerimaan posted buat item yang sama, tanggal beda.
         // (Tanggal sengaja di masa lalu relatif ke tanggal berjalan proyek ini,
         // 7 September 2026 — posting menolak tanggal surat jalan yang di masa depan.)
-        $batchA = $this->batchMasuk($gudang, $item, 10, '2026-08-20', $operator);
-        $batchB = $this->batchMasuk($gudang, $item, 10, '2026-08-24', $operator);
-
-        $this->alokasi($lokasi, $item, 12);
-
-        // Kirim 12 unit tanggal 29 Agustus — harus menghabiskan batch A (10)
-        // lalu ambil sisanya (2) dari batch B, FIFO.
-        $suratJalan = $this->draft($gudang, $lokasi, $operator, ['tanggal' => '2026-08-29'], [$item->id => 12]);
-
-        $this->actingAs($operator)
-            ->post(route('surat-jalan.posting', $suratJalan))
-            ->assertRedirect(route('surat-jalan.show', $suratJalan));
-
-        $suratJalan->refresh()->load('detail');
-        $this->assertSame(StatusSuratJalan::Posted, $suratJalan->status);
-
-        $detail = $suratJalan->detail->sole();
-
-        $alokasiA = AlokasiBatchKeluar::where('penerimaan_detail_id', $batchA->detail->sole()->id)
-            ->where('surat_jalan_detail_id', $detail->id)->sole();
-        $alokasiB = AlokasiBatchKeluar::where('penerimaan_detail_id', $batchB->detail->sole()->id)
-            ->where('surat_jalan_detail_id', $detail->id)->sole();
-
-        $this->assertSame(10, $alokasiA->qty_dialokasikan);
-        $this->assertSame(2, $alokasiB->qty_dialokasikan);
-    }
-
-    public function test_draft_invoice_dihitung_benar_dari_dua_batch_fifo(): void
-    {
-        [$gudang, $lokasi, $item, $operator] = $this->siapkanData();
-
         $this->batchMasuk($gudang, $item, 10, '2026-08-20', $operator);
         $this->batchMasuk($gudang, $item, 10, '2026-08-24', $operator);
         $this->alokasi($lokasi, $item, 12);
 
+        // Kirim 12 unit tanggal 29 Agustus. Sesuai §3b.1: tanggal_masuk_item
+        // = MIN(20 Agu, 24 Agu) = 20 Agu, dipakai buat SEMUA unit yang
+        // dikirim — bukan dipecah FIFO per dokumen penerimaan.
         $suratJalan = $this->draft($gudang, $lokasi, $operator, ['tanggal' => '2026-08-29'], [$item->id => 12]);
         $this->actingAs($operator)->post(route('surat-jalan.posting', $suratJalan));
         $suratJalan->refresh();
 
         // Hitungan manual:
-        // Batch A: 10 unit, masuk 20 Agu, keluar 29 Agu -> 9 hari simpan.
-        // Batch B: 2 unit (sisa dari 12), masuk 24 Agu, keluar 29 Agu -> 5 hari.
-        // unit-hari = 10*9 + 2*5 = 90 + 10 = 100
-        // berat_kg item = 100 kg -> kg-hari = 100 * 100 = 10.000
-        // harga_jual = Rp 10/kg/hari -> subtotal = 100.000
-        // harga_beli = Rp 7/kg/hari -> subtotal_pokok = 70.000
-        // PPN 10% -> 10.000, total = 110.000
+        // tanggal_masuk_item = MIN(20 Agu, 24 Agu) = 20 Agu.
+        // hari_simpan = 29 Agu - 20 Agu = 9 hari, berlaku utuh buat 12 unit.
+        // unit-hari = 12 * 9 = 108
+        // berat_kg item = 100 kg -> kg-hari = 108 * 100 = 10.800
+        // harga_jual = Rp 10/kg/hari -> subtotal = 108.000
+        // harga_beli = Rp 7/kg/hari -> subtotal_pokok = 75.600
+        // PPN 10% -> 10.800, total = 118.800
         $pusat = $this->pengguna(UserRole::OperatorPusat);
 
         $this->actingAs($pusat)
@@ -111,15 +82,15 @@ class InvoiceTest extends TestCase
         $this->assertSame('Kodim 0724 Boyolali', $invoice->nama_tertagih);
         $this->assertSame('2026-08-20', $invoice->periode_mulai->toDateString());
         $this->assertSame('2026-08-29', $invoice->periode_selesai->toDateString());
-        $this->assertEqualsWithDelta(100000.0, (float) $invoice->subtotal, 0.01);
-        $this->assertEqualsWithDelta(10000.0, (float) $invoice->ppn_nominal, 0.01);
-        $this->assertEqualsWithDelta(110000.0, (float) $invoice->total, 0.01);
+        $this->assertEqualsWithDelta(108000.0, (float) $invoice->subtotal, 0.01);
+        $this->assertEqualsWithDelta(10800.0, (float) $invoice->ppn_nominal, 0.01);
+        $this->assertEqualsWithDelta(118800.0, (float) $invoice->total, 0.01);
 
         $detail = $invoice->detail->sole();
-        $this->assertEqualsWithDelta(100.0, (float) $detail->total_unit_hari, 0.01);
-        $this->assertEqualsWithDelta(10000.0, (float) $detail->total_satuan_hari, 0.01);
-        $this->assertEqualsWithDelta(100000.0, (float) $detail->subtotal, 0.01);
-        $this->assertEqualsWithDelta(70000.0, (float) $detail->subtotal_pokok, 0.01);
+        $this->assertEqualsWithDelta(108.0, (float) $detail->total_unit_hari, 0.01);
+        $this->assertEqualsWithDelta(10800.0, (float) $detail->total_satuan_hari, 0.01);
+        $this->assertEqualsWithDelta(108000.0, (float) $detail->subtotal, 0.01);
+        $this->assertEqualsWithDelta(75600.0, (float) $detail->subtotal_pokok, 0.01);
 
         // Posting: nomor terbit, status jadi terbit.
         $this->actingAs($pusat)
@@ -225,10 +196,10 @@ class InvoiceTest extends TestCase
     }
 
     /**
-     * Bikin satu batch: Penerimaan ter-posting + detail-nya (buat FIFO), plus
-     * mutasi IN yang senilai (buat lolos validasi stok saat surat jalan
-     * diposting — dua-duanya perlu konsisten, sama seperti alur asli lewat
-     * PenerimaanController::posting()).
+     * Bikin satu dokumen Penerimaan ter-posting + detail-nya (dasar
+     * `tanggal_masuk_item` §3b.1), plus mutasi IN yang senilai (buat lolos
+     * validasi stok saat surat jalan diposting — dua-duanya perlu konsisten,
+     * sama seperti alur asli lewat PenerimaanController::posting()).
      */
     private function batchMasuk(Gudang $gudang, Item $item, int $jumlah, string $tanggal, User $oleh): Penerimaan
     {

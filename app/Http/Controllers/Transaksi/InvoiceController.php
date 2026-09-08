@@ -22,10 +22,12 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\View\View;
 
 /**
- * Modul Invoice Sewa Gudang — mesin hitung FIFO/per-batch, final
- * ("04-invoice-sewa-gudang.md" §0 & §3a). Alokasi batchnya sendiri sudah jalan
- * otomatis saat surat jalan diposting (App\Support\AlokasiFifoBatch); modul ini
- * cuma mengumpulkan hasilnya jadi dokumen invoice.
+ * Modul Invoice Sewa Gudang — dihitung langsung dari tanggal dokumen, tanpa
+ * alokasi per-batch ("04-invoice-sewa-gudang.md" §0 & §3b, final; §3a lama
+ * sudah dorman). Tidak ada penulisan alokasi otomatis saat surat jalan
+ * diposting — App\Support\PerhitunganBiayaSewa menghitung langsung dari
+ * `tanggal_masuk_item` (MIN tanggal Penerimaan posted per item) tiap kali
+ * dipanggil.
  */
 class InvoiceController extends Controller
 {
