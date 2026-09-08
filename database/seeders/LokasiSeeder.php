@@ -8,18 +8,20 @@ use Illuminate\Database\Seeder;
 class LokasiSeeder extends Seeder
 {
     /**
-     * 32 lokasi tujuan (desa binaan Kodim), diekstrak dari `lokasi kodim.jpeg`
-     * klien (lihat project doc data/lokasi.csv & data/README.md).
+     * 50 lokasi tujuan (desa binaan Kodim), diekstrak dari `lokasi kodim.jpeg`
+     * (baris 1-32) dan `lokasi kodim 2.jpeg` (baris 33-50) klien — Jo konfirmasi
+     * 7 September 2026 daftar sudah lengkap, total 50 titik (lihat project doc
+     * data/lokasi.csv & data/README.md).
      *
      * Catatan penting yang diwarisi dari sumbernya — JANGAN dianggap final:
-     * - Daftar ini KEMUNGKINAN belum lengkap — gambar sumber terpotong di baris 32.
      * - Transkripsi dari gambar beresolusi terbatas, perlu diverifikasi ke berkas
      *   Excel asli sebelum dipakai produksi. Yang paling perlu dicek: baris 5
-     *   (Sukabumi, "Kec. Waluran Kiara").
+     *   (Sukabumi, "Kec. Waluran Kiara") dan baris 39 (Lumajang, desa tertulis
+     *   "Krajan Dua, Burno" — kemungkinan dusun + desa, bukan dua desa).
      * - `nama_kodim` di sini masih placeholder "Kodim {kabupaten}" — kode satuan
      *   Kodim yang resmi belum didapat dari klien, JANGAN dikarang jadi nomor
      *   satuan (mis. "Kodim 0618/BS") tanpa konfirmasi.
-     * - Kode LOK-01..32 dibuat sendiri, ganti kalau klien punya penomoran sendiri.
+     * - Kode LOK-01..50 dibuat sendiri, ganti kalau klien punya penomoran sendiri.
      */
     private const LOKASI = [
         // provinsi, kabupaten, kecamatan, desa
@@ -55,6 +57,24 @@ class LokasiSeeder extends Seeder
         ['Jawa Tengah', 'Kudus', 'Jekulo', 'Gondoharum'],
         ['Jawa Tengah', 'Wonosobo', 'Kalibawang', 'Kalikarung'],
         ['Jawa Tengah', 'Brebes', 'Banjarharjo', 'Dukuhjeruk'],
+        ['Jawa Tengah', 'Blora', 'Kunduran', 'Kedungwaru'],
+        ['Jawa Timur', 'Banyuwangi', 'Purwoharjo', 'Glagahagung'],
+        ['Jawa Timur', 'Bondowoso', 'Sumberwringin', 'Sukorejo'],
+        ['Jawa Timur', 'Gresik', 'Panceng', 'Wotan'],
+        ['Jawa Timur', 'Jombang', 'Mojowarno', 'Grobogan'],
+        ['Jawa Timur', 'Kediri', 'Kandangan', 'Banaran'],
+        ['Jawa Timur', 'Lumajang', 'Senduro', 'Krajan Dua, Burno'],
+        ['Jawa Timur', 'Madiun', 'Mejayan', 'Kebonagung'],
+        ['Jawa Timur', 'Magetan', 'Parang', 'Mategal'],
+        ['Jawa Timur', 'Malang', 'Lawang', 'Widodadi'],
+        ['Jawa Timur', 'Mojokerto', 'Mojoanyar', 'Kepuhanyar'],
+        ['Jawa Timur', 'Ngawi', 'Widodaren', 'Sidolaju'],
+        ['Jawa Timur', 'Pamekasan', 'Tlanakan', 'Larangan Slampar'],
+        ['Jawa Timur', 'Ponorogo', 'Pulung', 'Pulung'],
+        ['Jawa Timur', 'Blitar', 'Kasamben', 'Jugo'],
+        ['Jawa Timur', 'Situbondo', 'Kendit', 'Klatakan'],
+        ['Jawa Timur', 'Trenggalek', 'Watulimo', 'Karanggandu'],
+        ['Jawa Timur', 'Jember', 'Silo', 'Silo'],
     ];
 
     public function run(): void

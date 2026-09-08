@@ -13,6 +13,7 @@ class DatabaseSeeder extends Seeder
             ItemSeeder::class,
             LokasiSeeder::class,
             AlokasiKebutuhanSeeder::class,
+            AlokasiKebutuhanLokasiTambahanSeeder::class,
             TarifSewaSeeder::class,
             UserSeeder::class,
         ]);

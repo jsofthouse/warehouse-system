@@ -47,7 +47,7 @@
                                 @if (is_null($item->berat_kg))
                                     <span class="badge bg-yellow-lt" title="Belum ada data dari klien">belum ada</span>
                                 @else
-                                    {{ number_format($item->berat_kg, 3) }} kg
+                                    {{ number_format($item->berat_kg, 2, ',', '.') }} kg
                                 @endif
                             </td>
                             <td class="text-end">

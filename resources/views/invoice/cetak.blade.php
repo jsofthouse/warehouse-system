@@ -17,13 +17,21 @@
 --}}
 @php
     $bulanIndonesia = [
-        1 => 'Januari', 2 => 'Februari', 3 => 'Maret', 4 => 'April', 5 => 'Mei', 6 => 'Juni',
-        7 => 'Juli', 8 => 'Agustus', 9 => 'September', 10 => 'Oktober', 11 => 'November', 12 => 'Desember',
+        1 => 'Januari',
+        2 => 'Februari',
+        3 => 'Maret',
+        4 => 'April',
+        5 => 'Mei',
+        6 => 'Juni',
+        7 => 'Juli',
+        8 => 'Agustus',
+        9 => 'September',
+        10 => 'Oktober',
+        11 => 'November',
+        12 => 'Desember',
     ];
 
-    $tanggalPanjang = fn($t) => $t
-        ? $t->day . ' ' . $bulanIndonesia[(int) $t->month] . ' ' . $t->year
-        : '—';
+    $tanggalPanjang = fn($t) => $t ? $t->day . ' ' . $bulanIndonesia[(int) $t->month] . ' ' . $t->year : '—';
 
     $dibatalkan = $invoice->status === App\Enums\StatusInvoice::Dibatalkan;
 
@@ -267,7 +275,8 @@
                     <tr>
                         <td class="label">Periode</td>
                         <td class="pemisah">:</td>
-                        <td>{{ $tanggalPanjang($invoice->periode_mulai) }} &ndash; {{ $tanggalPanjang($invoice->periode_selesai) }}</td>
+                        <td>{{ $tanggalPanjang($invoice->periode_mulai) }} &ndash;
+                            {{ $tanggalPanjang($invoice->periode_selesai) }}</td>
                     </tr>
                     <tr>
                         <td class="label">Gudang</td>
@@ -279,15 +288,15 @@
         </tr>
     </table>
 
-    <div class="catatan-tarif">
+    {{-- <div class="catatan-tarif">
         Biaya penyimpanan barang · Basis: {{ $basisContoh?->label() ?? '—' }}<br>
         Tarif: {{ $tarifContoh ? 'Rp '.number_format($tarifContoh, 2, ',', '.').' per '.$labelSatuan.' per hari' : '—' }}
-    </div>
+    </div> --}}
 
     <table class="barang">
         <thead>
             <tr>
-                <th class="tengah" style="width: 8mm">No</th>
+                <th class="tengah" style="width: 8mm;height: 6mm;">No</th>
                 <th>Nama Barang</th>
                 <th class="angka">Unit-hari</th>
                 <th class="angka">{{ $labelSatuan }} per unit</th>
@@ -312,22 +321,19 @@
                     </td>
                 </tr>
             @endforelse
+            <tr>
+                <td class="angka" colspan="5">SUBTOTAL</td>
+                <td class="angka" style="width: 30mm">{{ number_format($invoice->subtotal, 0, ',', '.') }}</td>
+            </tr>
+            <tr>
+                <td class="angka" colspan="5">PPN {{ rtrim(rtrim((string) $invoice->ppn_persen, '0'), '.') }}%</td>
+                <td class="angka">{{ number_format($invoice->ppn_nominal, 0, ',', '.') }}</td>
+            </tr>
+            <tr class="total">
+                <td class="angka" colspan="5">TOTAL</td>
+                <td class="angka">{{ number_format($invoice->total, 0, ',', '.') }}</td>
+            </tr>
         </tbody>
-    </table>
-
-    <table class="ringkasan">
-        <tr>
-            <td class="angka" colspan="5">SUBTOTAL</td>
-            <td class="angka" style="width: 30mm">{{ number_format($invoice->subtotal, 0, ',', '.') }}</td>
-        </tr>
-        <tr>
-            <td class="angka" colspan="5">PPN {{ rtrim(rtrim((string) $invoice->ppn_persen, '0'), '.') }}%</td>
-            <td class="angka">{{ number_format($invoice->ppn_nominal, 0, ',', '.') }}</td>
-        </tr>
-        <tr class="total">
-            <td class="angka" colspan="5">TOTAL</td>
-            <td class="angka">{{ number_format($invoice->total, 0, ',', '.') }}</td>
-        </tr>
     </table>
 
     @if ($dibatalkan)
@@ -351,7 +357,7 @@
         <tr>
             <td></td>
             <td class="garis">
-                {{ $invoice->poster?->name ?? $invoice->pembuat?->name ?? '' }}
+                {{ $invoice->poster?->name ?? ($invoice->pembuat?->name ?? '') }}
             </td>
         </tr>
     </table>
